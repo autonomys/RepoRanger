@@ -40,28 +40,34 @@ export const GitHubFileList: React.FC = () => {
   return (
     <div className="container mx-auto">
       <GitHubRepositoryInput onSubmit={handleRepoSubmit} />
-      <div className="flex mt-6">
-        <div className="w-1/3 bg-white shadow p-6 mr-6 rounded">
-          <h2 className="font-bold mb-4">Files:</h2>
-          <ul className="list-none">
-            {files.map((file, index) => (
-              <FileTree
-                key={`${file.path}-${index}`}
-                file={file}
-                selectedFiles={selectedFiles}
-                onSelection={handleSelection}
-              />
-            ))}
-          </ul>
+      {repo ? (
+        <div className="flex mt-6">
+          <div className="w-1/3 bg-white shadow p-6 mr-6 rounded">
+            <h2 className="font-bold mb-4">Files:</h2>
+            <ul className="list-none">
+              {files.map((file, index) => (
+                <FileTree
+                  key={`${file.path}-${index}`}
+                  file={file}
+                  selectedFiles={selectedFiles}
+                  onSelection={handleSelection}
+                />
+              ))}
+            </ul>
+          </div>
+          <div className="w-2/3 bg-white shadow p-6 rounded">
+            <SelectedFiles
+              selectedFiles={selectedFiles}
+              files={files}
+              repo={repo}
+            />
+          </div>
         </div>
-        <div className="w-2/3 bg-white shadow p-6 rounded">
-          <SelectedFiles
-            selectedFiles={selectedFiles}
-            files={files}
-            repo={repo}
-          />
+      ) : (
+        <div className="mt-6">
+          <p className="text-gray-600">Please submit a GitHub repository URL to display its files.</p>
         </div>
-      </div>
+      )}
     </div>
   );
 };
