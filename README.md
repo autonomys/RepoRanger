@@ -30,7 +30,7 @@ git clone https://github.com/isSerge/RepoRanger.git
 
 ```
 cd RepoRanger
-npm install
+yarn
 ```
 
 3. Create a `.env` file in the root of the project and add the following:
@@ -44,10 +44,16 @@ Replace `your_github_personal_access_token` with your GitHub personal access tok
 4. Start the development server:
 
 ```
-npm start
+yarn start
 ```
-
 The application will be available at `http://localhost:3000`.
+
+5. Deployment
+To create a production build, run:
+```
+yarn build
+```
+The optimized build output will be in the `build` folder.
 
 ## Built With
 
