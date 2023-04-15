@@ -12,9 +12,19 @@ export const GitHubFileList: React.FC = () => {
   const [repo, setRepo] = useState('');
 
   useEffect(() => {
+    let isCancelled = false;
+
     if (repo) {
-      fetchAllFiles(repo).then((data) => setFiles(data));
+      fetchAllFiles(repo).then((data) => {
+        if (!isCancelled) {
+          setFiles(data);
+        }
+      });
     }
+
+    return () => {
+      isCancelled = true;
+    };
   }, [repo]);
 
   const handleRepoSubmit = (repo: string) => {

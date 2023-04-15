@@ -16,9 +16,12 @@ export const FileTree: React.FC<FileTreeProps> = ({
   return (
     <li className="pl-2">
       <div
-        className={`cursor-pointer flex items-center ${
-          isSelected ? 'bg-blue-200' : ''
-        }`}
+        className={[
+          'cursor-pointer',
+          'flex',
+          'items-center',
+          isSelected ? 'bg-blue-200' : '',
+        ].join(' ')}
       >
         <input
           type="checkbox"

@@ -12,19 +12,26 @@ export const SelectedFiles: React.FC<{
   >(new Map());
 
   useEffect(() => {
+    const abortController = new AbortController();
     const promises: Promise<void>[] = [];
     const newSelectedFileContents = new Map(
       [...selectedFiles].map((path) => [path, ''])
     );
     selectedFiles.forEach((path) => {
-      const promise = fetchFileContent(repo, path).then((content) => {
-        newSelectedFileContents.set(path, content);
-      });
+      const promise = fetchFileContent(repo, path, abortController.signal).then(
+        (content) => {
+          newSelectedFileContents.set(path, content);
+        }
+      );
       promises.push(promise);
     });
     Promise.all(promises).then(() => {
       setSelectedFileContents(newSelectedFileContents);
     });
+
+    return () => {
+      abortController.abort();
+    };
   }, [selectedFiles, repo]);
 
   return (
