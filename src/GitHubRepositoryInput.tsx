@@ -34,6 +34,7 @@ export const GitHubRepositoryInput: React.FC<GitHubRepositoryInputProps> = ({ on
         onChange={handleInputChange}
         className="border border-gray-300 rounded w-full p-2"
         placeholder="https://github.com/owner/repo"
+        aria-label="GitHub Repository URL"
       />
     </form>
   );

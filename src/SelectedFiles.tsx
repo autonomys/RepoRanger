@@ -42,12 +42,12 @@ export const SelectedFiles: React.FC<{
           const file = files.find((f) => f.path === path);
           if (file) {
             return (
-              <div key={path}>
+              <>
                 <h3>
                   {index + 1}. file: {file.path}
                 </h3>
                 <p>{selectedFileContents.get(path)}</p>
-              </div>
+              </>
             );
           } else {
             return null;

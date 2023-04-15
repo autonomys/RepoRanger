@@ -23,13 +23,15 @@ export const FileTree: React.FC<FileTreeProps> = ({
           isSelected ? 'bg-blue-200' : '',
         ].join(' ')}
       >
-        <input
-          type="checkbox"
-          checked={isSelected}
-          onChange={() => onSelection(file)}
-          className="mr-1"
-        />
-        {file.path}
+        <label>
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={() => onSelection(file)}
+            className="mr-1"
+          />
+          {file.path}
+        </label>
       </div>
     </li>
   );

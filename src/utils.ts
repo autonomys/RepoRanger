@@ -20,6 +20,10 @@ const options = {
 }
 
 export const fetchAllFiles = async (repo: string, path = '') => {
+  if (!process.env.REACT_APP_GITHUB_TOKEN) {
+    throw new Error('GitHub token not found. Please set the REACT_APP_GITHUB_TOKEN environment variable.');
+  }
+
   try {
     const url = `https://api.github.com/repos/${repo}/contents/${path}`;
     const response = await fetch(url, options);
@@ -56,9 +60,12 @@ export const fetchFileContent = async (repo: string, path: string, signal: Abort
 
   if (response.ok) {
     const data = await response.json();
-    const content = atob(data.content);
-    console.log('content', content)
-    return content;
+    try {
+      const content = atob(data.content);
+      return content;
+    } catch (error) {
+      throw new Error('Failed to decode file content: Invalid base64-encoded string');
+    }
   } else {
     throw new Error(`Failed to fetch file content: ${response.statusText}`);
   }
