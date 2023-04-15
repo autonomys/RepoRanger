@@ -37,36 +37,44 @@ export const FileList: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto">
+    <div>
       <RepositoryInput onSubmit={handleRepoSubmit} />
-      {repo ? (
-        <div className="flex mt-6">
-          <div className="w-1/3 bg-white shadow p-6 mr-6 rounded">
-            <h2 className="font-bold mb-4">Files:</h2>
-            <ul className="list-none">
-              {files.map((file, index) => (
-                <FileTree
-                  key={`${file.path}-${index}`}
-                  file={file}
-                  selectedFiles={selectedFiles}
-                  onSelection={handleSelection}
-                />
-              ))}
-            </ul>
-          </div>
-          <div className="w-2/3 bg-white shadow p-6 rounded">
-            <SelectedFiles
-              selectedFiles={selectedFiles}
-              files={files}
-              repo={repo}
-            />
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-1">
+          {repo ? (
+            <div className="bg-white shadow p-6 rounded">
+              <h2 className="font-bold mb-4">Files:</h2>
+              <ul className="list-none">
+                {files.map((file, index) => (
+                  <FileTree
+                    key={`${file.path}-${index}`}
+                    file={file}
+                    selectedFiles={selectedFiles}
+                    onSelection={handleSelection}
+                  />
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <div className="bg-white shadow p-6 rounded">
+              <p className="text-gray-600">
+                Please submit a GitHub repository URL to display its files.
+              </p>
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="mt-6">
-          <p className="text-gray-600">Please submit a GitHub repository URL to display its files.</p>
-        </div>
-      )}
+        {selectedFiles.size > 0 && (
+          <div className="md:col-span-2">
+            <div className="bg-white shadow p-6 rounded">
+              <SelectedFiles
+                selectedFiles={selectedFiles}
+                files={files}
+                repo={repo}
+              />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

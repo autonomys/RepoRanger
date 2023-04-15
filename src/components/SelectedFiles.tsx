@@ -55,7 +55,7 @@ export const SelectedFiles: React.FC<{
         ) : null}
       </div>
       {selectedFiles.size > 0 ? (
-        <pre className="bg-gray-100 p-4 rounded">
+        <pre className="bg-gray-100 p-4 rounded overflow-x-auto">
           {[...selectedFiles].map((path, index) => {
             const file = files.find((f) => f.path === path);
             if (file) {
