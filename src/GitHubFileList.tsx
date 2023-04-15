@@ -59,12 +59,31 @@ export const GitHubFileList: React.FC = () => {
   const handleSelection = (file: GitHubFile) => {
     setSelectedFiles((prevSelectedFiles) => {
       const newSelectedFiles = new Set(prevSelectedFiles);
-  
+
       if (newSelectedFiles.has(file.path)) {
         newSelectedFiles.delete(file.path);
+
+        // deselect all children if it's a directory and it's being deselected
+        if (file.type === 'dir') {
+          file.children?.forEach((child) => {
+            newSelectedFiles.delete(child.path);
+
+            if (child.type === 'dir') {
+              const deselectChildrenRecursively = (child: GitHubFile) => {
+                child.children?.forEach((subchild) => {
+                  newSelectedFiles.delete(subchild.path);
+                  if (subchild.type === 'dir') {
+                    deselectChildrenRecursively(subchild);
+                  }
+                });
+              };
+              deselectChildrenRecursively(child);
+            }
+          });
+        }
       } else {
         newSelectedFiles.add(file.path);
-  
+
         if (file.type === 'dir') {
           file.children?.forEach((child) => {
             newSelectedFiles.add(child.path);
@@ -82,10 +101,10 @@ export const GitHubFileList: React.FC = () => {
           });
         }
       }
-  
+
       return newSelectedFiles;
     });
-  };    
+  };
 
   const handleRepoSubmit = (repo: string) => {
     setRepo(repo);
