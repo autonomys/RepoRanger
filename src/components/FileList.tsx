@@ -9,20 +9,24 @@ export const FileList: React.FC = () => {
   const [files, setFiles] = useState<GitHubFile[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [repo, setRepo] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     let isCancelled = false;
 
     if (repo) {
+      setIsLoading(true);
       fetchAllFiles(repo).then((data) => {
         if (!isCancelled) {
           setFiles(data);
+          setIsLoading(false);
         }
       });
     }
 
     return () => {
       isCancelled = true;
+      setIsLoading(false);
     };
   }, [repo]);
 
@@ -41,7 +45,11 @@ export const FileList: React.FC = () => {
       <RepositoryInput onSubmit={handleRepoSubmit} />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-1">
-          {repo ? (
+          {isLoading ? (
+            <div className="flex justify-center items-center">
+              <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          ) : repo ? (
             <div className="bg-white shadow p-6 rounded">
               <h2 className="font-bold mb-4">Files:</h2>
               <ul className="list-none">
