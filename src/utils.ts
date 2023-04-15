@@ -43,3 +43,17 @@ export const fetchAllFiles = async (repo: string, path = '') => {
     return [];
   }
 };
+
+export const fetchFileContent = async (repo: string, path: string): Promise<string> => {
+  const url = `https://api.github.com/repos/${repo}/contents/${path}`;
+  const response = await fetch(url);
+
+  if (response.ok) {
+    const data = await response.json();
+    const content = atob(data.content);
+    console.log('content', content)
+    return content;
+  } else {
+    throw new Error(`Failed to fetch file content: ${response.statusText}`);
+  }
+};

@@ -44,7 +44,11 @@ export const GitHubFileList: React.FC = () => {
           </ul>
         </div>
         <div className="w-2/3">
-          <SelectedFiles selectedFiles={selectedFiles} files={files} />
+          <SelectedFiles
+            selectedFiles={selectedFiles}
+            files={files}
+            repo={repo}
+          />
         </div>
       </div>
     </div>
