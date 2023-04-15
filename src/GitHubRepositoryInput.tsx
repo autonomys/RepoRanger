@@ -17,7 +17,6 @@ export const GitHubRepositoryInput: React.FC<GitHubRepositoryInputProps> = ({ on
     const repoMatch = inputValue.match(/github.com\/(.+\/.+)(\/|$)/i);
     if (repoMatch && repoMatch[1]) {
       onSubmit(repoMatch[1]);
-      setInputValue('');
     } else {
       alert('Invalid GitHub repository URL.');
     }
