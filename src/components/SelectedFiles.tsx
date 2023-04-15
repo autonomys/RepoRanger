@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { GitHubFile } from './types';
-import { fetchFileContent } from './utils';
+import { GitHubFile } from '../types';
+import { fetchFileContent } from '../utils';
 
 export const SelectedFiles: React.FC<{
   selectedFiles: Set<string>;

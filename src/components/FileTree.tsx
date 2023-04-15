@@ -1,5 +1,5 @@
 // src/FileTree.tsx
-import { GitHubFile } from './types';
+import { GitHubFile } from '../types';
 
 interface FileTreeProps {
   file: GitHubFile;

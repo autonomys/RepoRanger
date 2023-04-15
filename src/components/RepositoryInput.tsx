@@ -1,11 +1,10 @@
-// src/GitHubRepositoryInput.tsx
 import React, { useState } from 'react';
 
-interface GitHubRepositoryInputProps {
+interface RepositoryInputProps {
   onSubmit: (repo: string) => void;
 }
 
-export const GitHubRepositoryInput: React.FC<GitHubRepositoryInputProps> = ({
+export const RepositoryInput: React.FC<RepositoryInputProps> = ({
   onSubmit,
 }) => {
   const [inputValue, setInputValue] = useState('');

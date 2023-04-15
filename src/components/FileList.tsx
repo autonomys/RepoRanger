@@ -1,12 +1,11 @@
-// src/GitHubFileList.tsx
 import React, { useEffect, useState } from 'react';
 import { FileTree } from './FileTree';
-import { GitHubRepositoryInput } from './GitHubRepositoryInput';
-import { fetchAllFiles, getSelectedFiles } from './utils';
-import { GitHubFile } from './types';
+import { RepositoryInput } from './RepositoryInput';
+import { fetchAllFiles, getSelectedFiles } from '../utils';
+import { GitHubFile } from '../types';
 import { SelectedFiles } from './SelectedFiles';
 
-export const GitHubFileList: React.FC = () => {
+export const FileList: React.FC = () => {
   const [files, setFiles] = useState<GitHubFile[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [repo, setRepo] = useState('');
@@ -39,7 +38,7 @@ export const GitHubFileList: React.FC = () => {
 
   return (
     <div className="container mx-auto">
-      <GitHubRepositoryInput onSubmit={handleRepoSubmit} />
+      <RepositoryInput onSubmit={handleRepoSubmit} />
       {repo ? (
         <div className="flex mt-6">
           <div className="w-1/3 bg-white shadow p-6 mr-6 rounded">

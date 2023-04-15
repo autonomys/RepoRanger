@@ -1,5 +1,5 @@
-import { getSelectedFiles } from './utils';
-import { GitHubFile } from './types';
+import { getSelectedFiles } from '../utils';
+import { GitHubFile } from '../types';
 
 describe('getSelectedFiles', () => {
   it('should add single file to selectedFiles', () => {

@@ -1,11 +1,11 @@
-import { GitHubFileList } from './GitHubFileList';
+import { FileList } from './components/FileList';
 
 function App() {
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-blue-500 text-white text-xl p-4">RepoRanger</header>
       <main className="p-4">
-        <GitHubFileList />
+        <FileList />
       </main>
     </div>
   );
