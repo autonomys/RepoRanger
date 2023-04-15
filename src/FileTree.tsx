@@ -5,47 +5,65 @@ interface GitHubFile {
   name: string;
   path: string;
   type: 'file' | 'dir';
+  children?: GitHubFile[];
 }
 
 interface FileTreeProps {
   file: GitHubFile;
   selectedFiles: Set<string>;
   onSelection: (file: GitHubFile) => void;
-  fetchFiles: (path: string) => Promise<GitHubFile[]>;
 }
 
-export const FileTree: React.FC<FileTreeProps> = ({ file, selectedFiles, onSelection, fetchFiles }) => {
+export const FileTree: React.FC<FileTreeProps> = ({
+  file,
+  selectedFiles,
+  onSelection,
+}) => {
   const [expanded, setExpanded] = useState(false);
-  const [children, setChildren] = useState<GitHubFile[]>([]);
   const isSelected = selectedFiles.has(file.path);
+  const isFolder = file.type === 'dir';
 
-  const handleClick = async () => {
-    if (file.type === 'dir') {
+  const handleToggleExpandClick = async () => {
+    if (isFolder) {
       setExpanded(!expanded);
-      if (!expanded && children.length === 0) {
-        const newChildren = await fetchFiles(file.path);
-        setChildren(newChildren);
-      }
     }
   };
 
   return (
     <li className="pl-2">
       <div
-        className={`cursor-pointer flex items-center ${isSelected ? 'bg-blue-200' : ''}`}
-        onClick={() => onSelection(file)}
+        className={`cursor-pointer flex items-center ${
+          isSelected ? 'bg-blue-200' : ''
+        }`}
       >
-        {file.type === 'dir' && (
-          <span className={`mr-1 ${expanded ? 'text-blue-600' : ''}`} onClick={handleClick}>
+        {isFolder && (
+          <button
+            className={`mr-1 text-xs bg-blue-500 text-white rounded px-1 focus:outline-none ${
+              expanded ? 'bg-blue-600' : ''
+            }`}
+            onClick={handleToggleExpandClick}
+          >
             {expanded ? '-' : '+'}
-          </span>
+          </button>
         )}
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={() => onSelection(file)}
+          className="mr-1"
+        />
         {file.name}
+        {isFolder && `(${file.children?.length})`}
       </div>
       {expanded && (
         <ul className="list-none pl-4">
-          {children.map((child, index) => (
-            <FileTree key={index} file={child} selectedFiles={selectedFiles} onSelection={onSelection} fetchFiles={fetchFiles} />
+          {file.children?.map((child, index) => (
+            <FileTree
+              key={index}
+              file={child}
+              selectedFiles={selectedFiles}
+              onSelection={onSelection}
+            />
           ))}
         </ul>
       )}

@@ -1,6 +1,5 @@
 // src/GitHubFileList.tsx
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { FileTree } from './FileTree';
 import { GitHubRepositoryInput } from './GitHubRepositoryInput';
 
@@ -8,6 +7,7 @@ interface GitHubFile {
   name: string;
   path: string;
   type: 'file' | 'dir';
+  children?: GitHubFile[];
 }
 
 export const GitHubFileList: React.FC = () => {
@@ -15,22 +15,49 @@ export const GitHubFileList: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [repo, setRepo] = useState('');
 
-  const fetchFiles = async (path: string = '') => {
-    if (!repo) return;
-    const response = await axios.get(
-      `https://api.github.com/repos/${repo}/contents/${path}`
-    );
-    return response.data;
+  const fetchAllFiles = async (repo: string, path = '') => {
+    try {
+      const response = await fetch(
+        `https://api.github.com/repos/${repo}/contents/${path}`
+      );
+      if (!response.ok) {
+        throw new Error(
+          `Error fetching files: ${response.status} ${response.statusText}`
+        );
+      }
+      const data = await response.json();
+      let files: GitHubFile[] = [];
+
+      for (const file of data) {
+        let children;
+
+        if (file.type === 'dir') {
+          children = await fetchAllFiles(repo, file.path);
+        }
+
+        files.push({
+          name: file.name,
+          path: file.path,
+          type: file.type,
+          children,
+        });
+      }
+
+      return files;
+    } catch (error) {
+      console.error('Error fetching files:', error);
+      return [];
+    }
   };
 
   useEffect(() => {
     if (repo) {
-      fetchFiles().then(data => setFiles(data));
+      fetchAllFiles(repo).then((data) => setFiles(data));
     }
   }, [repo]);
 
   const handleSelection = (file: GitHubFile) => {
-    setSelectedFiles(prevSelectedFiles => {
+    setSelectedFiles((prevSelectedFiles) => {
       const newSelectedFiles = new Set(prevSelectedFiles);
       if (newSelectedFiles.has(file.path)) {
         newSelectedFiles.delete(file.path);
@@ -50,7 +77,12 @@ export const GitHubFileList: React.FC = () => {
       <GitHubRepositoryInput onSubmit={handleRepoSubmit} />
       <ul className="list-none">
         {files.map((file, index) => (
-          <FileTree key={index} file={file} selectedFiles={selectedFiles} onSelection={handleSelection} fetchFiles={fetchFiles} />
+          <FileTree
+            key={index}
+            file={file}
+            selectedFiles={selectedFiles}
+            onSelection={handleSelection}
+          />
         ))}
       </ul>
     </>
