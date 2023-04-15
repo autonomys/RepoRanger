@@ -5,7 +5,9 @@ interface GitHubRepositoryInputProps {
   onSubmit: (repo: string) => void;
 }
 
-export const GitHubRepositoryInput: React.FC<GitHubRepositoryInputProps> = ({ onSubmit }) => {
+export const GitHubRepositoryInput: React.FC<GitHubRepositoryInputProps> = ({
+  onSubmit,
+}) => {
   const [inputValue, setInputValue] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,6 +38,12 @@ export const GitHubRepositoryInput: React.FC<GitHubRepositoryInputProps> = ({ on
         placeholder="https://github.com/owner/repo"
         aria-label="GitHub Repository URL"
       />
+      <button
+        type="submit"
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mt-4 rounded"
+      >
+        Load Repository
+      </button>
     </form>
   );
 };

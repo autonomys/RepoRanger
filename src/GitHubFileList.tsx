@@ -38,10 +38,10 @@ export const GitHubFileList: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="container mx-auto">
       <GitHubRepositoryInput onSubmit={handleRepoSubmit} />
-      <div className="flex">
-        <div className="w-1/3">
+      <div className="flex mt-6">
+        <div className="w-1/3 bg-white shadow p-6 mr-6 rounded">
           <ul className="list-none">
             {files.map((file, index) => (
               <FileTree
@@ -53,7 +53,7 @@ export const GitHubFileList: React.FC = () => {
             ))}
           </ul>
         </div>
-        <div className="w-2/3">
+        <div className="w-2/3 bg-white shadow p-6 rounded">
           <SelectedFiles
             selectedFiles={selectedFiles}
             files={files}

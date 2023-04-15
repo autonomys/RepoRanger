@@ -15,24 +15,15 @@ export const FileTree: React.FC<FileTreeProps> = ({
   const isSelected = selectedFiles.has(file.path);
   return (
     <li className="pl-2">
-      <div
-        className={[
-          'cursor-pointer',
-          'flex',
-          'items-center',
-          isSelected ? 'bg-blue-200' : '',
-        ].join(' ')}
-      >
-        <label>
-          <input
-            type="checkbox"
-            checked={isSelected}
-            onChange={() => onSelection(file)}
-            className="mr-1"
-          />
-          {file.path}
-        </label>
-      </div>
+      <label className="cursor-pointer flex items-center space-x-2">
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={() => onSelection(file)}
+          className="form-checkbox text-blue-500"
+        />
+        <span className={isSelected ? 'font-semibold' : ''}>{file.path}</span>
+      </label>
     </li>
   );
 };
