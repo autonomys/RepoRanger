@@ -29,21 +29,23 @@ export const GitHubRepositoryInput: React.FC<GitHubRepositoryInputProps> = ({
       <label htmlFor="repo-url" className="block mb-2">
         GitHub Repository URL:
       </label>
-      <input
-        type="text"
-        id="repo-url"
-        value={inputValue}
-        onChange={handleInputChange}
-        className="border border-gray-300 rounded w-full p-2"
-        placeholder="https://github.com/owner/repo"
-        aria-label="GitHub Repository URL"
-      />
-      <button
-        type="submit"
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mt-4 rounded"
-      >
-        Load Repository
-      </button>
+      <div className="flex items-stretch">
+        <input
+          type="text"
+          id="repo-url"
+          value={inputValue}
+          onChange={handleInputChange}
+          className="border border-gray-300 rounded-l w-full p-2"
+          placeholder="https://github.com/owner/repo"
+          aria-label="GitHub Repository URL"
+        />
+        <button
+          type="submit"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r"
+        >
+          Load Repository
+        </button>
+      </div>
     </form>
   );
 };

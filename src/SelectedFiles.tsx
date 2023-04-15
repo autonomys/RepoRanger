@@ -52,23 +52,23 @@ export const SelectedFiles: React.FC<{
           Copy Contents
         </button>
       </div>
-    <pre>
-      {[...selectedFiles].map((path, index) => {
-        const file = files.find((f) => f.path === path);
-        if (file) {
-          return (
-            <>
-              <h3>
-                {index + 1}. file: {file.path}
-              </h3>
-              <p>{selectedFileContents.get(path)}</p>
-            </>
-          );
-        } else {
-          return null;
-        }
-      })}
-    </pre>
+      <pre className="bg-gray-100 p-4 rounded">
+        {[...selectedFiles].map((path, index) => {
+          const file = files.find((f) => f.path === path);
+          if (file) {
+            return (
+              <div key={`${file.path}-${index}`}>
+                <h3 className="font-semibold">
+                  {index + 1}. file: {file.path}
+                </h3>
+                <p>{selectedFileContents.get(path)}</p>
+              </div>
+            );
+          } else {
+            return null;
+          }
+        })}
+      </pre>
     </div>
   );
 };

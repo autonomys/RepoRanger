@@ -42,6 +42,7 @@ export const GitHubFileList: React.FC = () => {
       <GitHubRepositoryInput onSubmit={handleRepoSubmit} />
       <div className="flex mt-6">
         <div className="w-1/3 bg-white shadow p-6 mr-6 rounded">
+          <h2 className="font-bold mb-4">Files:</h2>
           <ul className="list-none">
             {files.map((file, index) => (
               <FileTree

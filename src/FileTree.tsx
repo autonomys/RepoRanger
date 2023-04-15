@@ -14,7 +14,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
 }) => {
   const isSelected = selectedFiles.has(file.path);
   return (
-    <li className="pl-2">
+    <li className="pl-2 py-1">
       <label className="cursor-pointer flex items-center space-x-2">
         <input
           type="checkbox"
