@@ -12,11 +12,17 @@ export const getSelectedFiles = (prevSelectedFiles: Set<string>, file: GitHubFil
   return newSelectedFiles;
 };
 
+const options = {
+  headers: {
+    Authorization: `Bearer ${process.env.REACT_APP_GITHUB_TOKEN}`,
+    'Content-Type': 'application/json',
+  }
+}
+
 export const fetchAllFiles = async (repo: string, path = '') => {
   try {
-    const response = await fetch(
-      `https://api.github.com/repos/${repo}/contents/${path}`
-    );
+    const url = `https://api.github.com/repos/${repo}/contents/${path}`;
+    const response = await fetch(url, options);
     if (!response.ok) {
       throw new Error(
         `Error fetching files: ${response.status} ${response.statusText}`
@@ -44,9 +50,9 @@ export const fetchAllFiles = async (repo: string, path = '') => {
   }
 };
 
-export const fetchFileContent = async (repo: string, path: string): Promise<string> => {
+export const fetchFileContent = async (repo: string, path: string, signal: AbortSignal): Promise<string> => {
   const url = `https://api.github.com/repos/${repo}/contents/${path}`;
-  const response = await fetch(url);
+  const response = await fetch(url, { ...options, signal });
 
   if (response.ok) {
     const data = await response.json();
