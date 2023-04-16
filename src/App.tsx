@@ -66,13 +66,22 @@ function App() {
     );
   };
 
+  const handleReset = () => {
+    setFiles([]);
+    setSelectedFiles(new Set());
+    setRepo('');
+    setIsLoading(false);
+    setSelectedBranch('');
+    setBranches([]);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-blue-500 text-white text-xl p-4">RepoRanger</header>
       <main className="p-4">
         <div className="container mx-auto">
           <div>
-            <RepositoryInput onSubmit={handleRepoSubmit} />
+            <RepositoryInput onSubmit={handleRepoSubmit} onReset={handleReset} />
             {repo && (
               <BranchSelector
                 branches={branches}
