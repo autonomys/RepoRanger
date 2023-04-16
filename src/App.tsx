@@ -81,7 +81,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <header className="bg-blue-500 text-white text-xl p-4">RepoRanger</header>
+      <header className="bg-blue-500 text-white text-xl p-4 font-semibold">RepoRanger</header>
       <main className="p-4">
         <div className="container mx-auto">
           <div>

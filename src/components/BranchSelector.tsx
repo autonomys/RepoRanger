@@ -19,7 +19,7 @@ export const BranchSelector: React.FC<BranchSelectorProps> = ({
         {branches.map((branch, index) => (
           <label
             key={index}
-            className="flex items-center mr-4 mb-2 cursor-pointer text-sm"
+            className="flex items-center mr-4 mb-2 cursor-pointer text-sm font-medium"
           >
             <input
               type="radio"
