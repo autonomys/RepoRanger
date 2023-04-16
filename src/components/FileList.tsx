@@ -87,13 +87,14 @@ export const FileList: React.FC = () => {
             </div>
           )}
         </div>
-        {selectedFiles.size > 0 && (
+        {repo && (
           <div className="md:col-span-2">
             <div className="bg-white shadow p-6 rounded">
               <SelectedFiles
                 selectedFiles={selectedFiles}
                 files={files}
                 repo={repo}
+                branch={selectedBranch}
               />
             </div>
           </div>

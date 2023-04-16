@@ -19,7 +19,7 @@ const options = {
   }
 }
 
-export const fetchAllFiles = async (repo: string, branch: string ,path = '') => {
+export const fetchAllFiles = async (repo: string, branch: string, path = '') => {
   if (!process.env.REACT_APP_GITHUB_TOKEN) {
     throw new Error('GitHub token not found. Please set the REACT_APP_GITHUB_TOKEN environment variable.');
   }
@@ -32,7 +32,7 @@ export const fetchAllFiles = async (repo: string, branch: string ,path = '') => 
         `Error fetching files: ${response.status} ${response.statusText}`
       );
     }
-    const data = await response.json();
+    const data = (await response.json()).tree;
     let files: GitHubFile[] = [];
 
     for (const file of data) {
@@ -54,8 +54,13 @@ export const fetchAllFiles = async (repo: string, branch: string ,path = '') => 
   }
 };
 
-export const fetchFileContent = async (repo: string, path: string, signal: AbortSignal): Promise<string> => {
-  const url = `https://api.github.com/repos/${repo}/contents/${path}`;
+export const fetchFileContent = async (
+  repo: string,
+  branch: string,
+  path: string,
+  signal: AbortSignal,
+): Promise<string> => {
+  const url = `https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`;
   const response = await fetch(url, { ...options, signal });
 
   if (response.ok) {
