@@ -1,7 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { GitHubFile } from '../types';
-import { fetchFileContent } from '../api';
 import { CharacterCount, SelectedFileList, CopyToClipboardButton } from './';
+import { useFileContents } from '../useFileContents';
 
 const CHARACTER_LIMIT = 15000;
 
@@ -11,53 +11,15 @@ export const SelectedFiles: React.FC<{
   repo: string;
   branch: string;
 }> = ({ selectedFiles, files, repo, branch }) => {
-  const [selectedFileContents, setSelectedFileContents] = useState<
-    Map<string, string>
-  >(new Map());
-  const [totalCharCount, setTotalCharCount] = useState<number>(0);
+  const { contents, totalCharCount } = useFileContents(
+    selectedFiles,
+    repo,
+    branch
+  );
 
   const memoizedSelectedFiles = useMemo(() => {
     return [...selectedFiles];
   }, [selectedFiles]);
-
-  useEffect(() => {
-    const abortController = new AbortController();
-
-    if (memoizedSelectedFiles.length === 0) {
-      setTotalCharCount(0);
-      return;
-    }
-
-    const promises: Promise<void>[] = [];
-    const newSelectedFileContents = new Map(
-      memoizedSelectedFiles.map((path) => [path, ''])
-    );
-    let totalChars = 0;
-    memoizedSelectedFiles.forEach((path) => {
-      const promise = fetchFileContent(
-        repo,
-        branch,
-        path,
-        abortController.signal
-      )
-        .then(({ content, size }) => {
-          newSelectedFileContents.set(path, content || '');
-          totalChars += size;
-          setTotalCharCount(totalChars);
-        })
-        .catch((error) => {
-          console.error(`Error fetching file content for ${path}:`, error);
-        });
-      promises.push(promise);
-    });
-    Promise.all(promises).then(() => {
-      setSelectedFileContents(newSelectedFileContents);
-    });
-
-    return () => {
-      abortController.abort();
-    };
-  }, [memoizedSelectedFiles, repo, branch]);
 
   return (
     <div>
@@ -68,7 +30,7 @@ export const SelectedFiles: React.FC<{
         />
         {selectedFiles.size ? (
           <CopyToClipboardButton
-            content={[...selectedFileContents.values()].join('\n\n')}
+            content={[...contents.values()].join('\n\n')}
           />
         ) : null}
       </div>
@@ -78,7 +40,7 @@ export const SelectedFiles: React.FC<{
           <SelectedFileList
             selectedFiles={memoizedSelectedFiles}
             files={files}
-            selectedFileContents={selectedFileContents}
+            selectedFileContents={contents}
           />
         </>
       ) : (
