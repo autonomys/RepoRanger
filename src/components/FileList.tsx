@@ -1,22 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { FileTree } from './FileTree';
 import { RepositoryInput } from './RepositoryInput';
-import { fetchAllFiles, getSelectedFiles } from '../utils';
+import { fetchAllFiles, getSelectedFiles, fetchBranches } from '../utils';
 import { GitHubFile } from '../types';
 import { SelectedFiles } from './SelectedFiles';
+import { BranchSelector } from './BranchSelector';
 
 export const FileList: React.FC = () => {
   const [files, setFiles] = useState<GitHubFile[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [repo, setRepo] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedBranch, setSelectedBranch] = useState('');
+  const [branches, setBranches] = useState<string[]>([]);
 
   useEffect(() => {
     let isCancelled = false;
 
     if (repo) {
       setIsLoading(true);
-      fetchAllFiles(repo).then((data) => {
+      fetchAllFiles(repo, selectedBranch).then((data) => {
         if (!isCancelled) {
           setFiles(data);
           setIsLoading(false);
@@ -28,11 +31,19 @@ export const FileList: React.FC = () => {
       isCancelled = true;
       setIsLoading(false);
     };
-  }, [repo]);
+  }, [repo, selectedBranch]);
 
-  const handleRepoSubmit = (repo: string) => {
-    setRepo(repo);
+  const handleRepoSubmit = async (repo: string) => {
+    try {
+      const branches = await fetchBranches(repo);
+      setBranches(branches);
+      setSelectedBranch(branches[0]);
+      setRepo(repo);
+    } catch (error) {
+      alert('Failed to fetch repository branches');
+    }
   };
+  
 
   const handleSelection = (file: GitHubFile) => {
     setSelectedFiles((prevSelectedFiles) =>
@@ -43,6 +54,11 @@ export const FileList: React.FC = () => {
   return (
     <div>
       <RepositoryInput onSubmit={handleRepoSubmit} />
+      <BranchSelector
+        branches={branches}
+        selectedBranch={selectedBranch}
+        onBranchChange={setSelectedBranch}
+      />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-1">
           {isLoading ? (

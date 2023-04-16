@@ -19,13 +19,13 @@ const options = {
   }
 }
 
-export const fetchAllFiles = async (repo: string, path = '') => {
+export const fetchAllFiles = async (repo: string, branch: string ,path = '') => {
   if (!process.env.REACT_APP_GITHUB_TOKEN) {
     throw new Error('GitHub token not found. Please set the REACT_APP_GITHUB_TOKEN environment variable.');
   }
 
   try {
-    const url = `https://api.github.com/repos/${repo}/contents/${path}`;
+    const url = `https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`;
     const response = await fetch(url, options);
     if (!response.ok) {
       throw new Error(
@@ -37,7 +37,7 @@ export const fetchAllFiles = async (repo: string, path = '') => {
 
     for (const file of data) {
       if (file.type === 'dir') {
-        const children = await fetchAllFiles(repo, file.path);
+        const children = await fetchAllFiles(repo, branch, file.path);
         files = files.concat(children);
       } else {
         files.push({
@@ -70,3 +70,15 @@ export const fetchFileContent = async (repo: string, path: string, signal: Abort
     throw new Error(`Failed to fetch file content: ${response.statusText}`);
   }
 };
+
+export const fetchBranches = async (repo: string): Promise<string[]> => {
+  const url = `https://api.github.com/repos/${repo}/branches`;
+  const response = await fetch(url, options);
+  if (response.ok) {
+    const data = await response.json();
+    return data.map((branch: { name: string }) => branch.name);
+  } else {
+    throw new Error('Failed to fetch branches');
+  }
+};
+
