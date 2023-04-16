@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { GitHubFile } from '../types';
 import { fetchFileContent } from '../api';
-import { formatNumber } from '../utils';
+import { CharacterCount, SelectedFileList, CopyToClipboardButton } from './';
 
 const CHARACTER_LIMIT = 15000;
 
@@ -59,69 +59,27 @@ export const SelectedFiles: React.FC<{
     };
   }, [memoizedSelectedFiles, repo, branch]);
 
-  const handleCopy = () => {
-    const content = [...selectedFileContents.values()].join('\n\n');
-    navigator.clipboard.writeText(content).then(() => {
-      alert('Contents copied to clipboard.');
-    });
-  };
-
-  const isCharLimitReached = totalCharCount > CHARACTER_LIMIT;
-
   return (
     <div>
       <div className="flex justify-between items-center mb-4 gap-4">
-        <div className="mb-4">
-          <div className="font-semibold mb-2">
-            Total character count: {formatNumber(totalCharCount)} /{' '}
-            {formatNumber(CHARACTER_LIMIT)}
-          </div>
-          <p
-            className={`text-red-500 font-semibold text-sm ${
-              isCharLimitReached ? 'visible' : 'invisible'
-            }`}
-          >
-            Character limit exceeded. Please select fewer files or use{' '}
-            <a
-              className="underline"
-              href="https://chatgpt-prompt-splitter.jjdiaz.dev/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              ChatGPT PROMPTs Splitter
-            </a>
-          </p>
-        </div>
+        <CharacterCount
+          totalCharCount={totalCharCount}
+          charLimit={CHARACTER_LIMIT}
+        />
         {selectedFiles.size ? (
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            onClick={handleCopy}
-          >
-            Copy Contents
-          </button>
+          <CopyToClipboardButton
+            content={[...selectedFileContents.values()].join('\n\n')}
+          />
         ) : null}
       </div>
       {selectedFiles.size > 0 ? (
         <>
           <h2 className="font-semibold">Selected Files:</h2>
-          <pre className="bg-gray-100 p-4 rounded overflow-x-auto">
-            {memoizedSelectedFiles.map((path, index) => {
-              const file = files.find((f) => f.path === path);
-              if (file) {
-                const fileContent = selectedFileContents.get(path);
-                return (
-                  <div key={`${file.path}-${index}`}>
-                    <h3 className="font-semibold">
-                      {index + 1}. file: {file.path}
-                    </h3>
-                    <p>{fileContent}</p>
-                  </div>
-                );
-              } else {
-                return null;
-              }
-            })}
-          </pre>
+          <SelectedFileList
+            selectedFiles={memoizedSelectedFiles}
+            files={files}
+            selectedFileContents={selectedFileContents}
+          />
         </>
       ) : (
         <p className="text-gray-600">
