@@ -55,21 +55,26 @@ export const fetchFileContent = async (
   repo: string,
   branch: string,
   path: string,
-  signal: AbortSignal,
-): Promise<string> => {
+  signal?: AbortSignal
+): Promise<{ content: string; size: number }> => {
   const url = `https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`;
   const response = await fetch(url, { ...options, signal });
+  const json = await response.json();
 
-  if (response.ok) {
-    const data = await response.json();
-    try {
-      const content = atob(data.content);
-      return content;
-    } catch (error) {
-      throw new Error('Failed to decode file content: Invalid base64-encoded string');
-    }
-  } else {
-    throw new Error(`Failed to fetch file content: ${response.statusText}`);
+  if (Array.isArray(json)) {
+    throw new Error('Unexpected response from GitHub API');
+  }
+
+  if (json.content === undefined || json.size === undefined) {
+    throw new Error('Missing content or size in GitHub API response');
+  }
+
+  try {
+    const content = atob(json.content);
+    const size = json.size;
+    return { content, size };
+  } catch (error) {
+    throw new Error('Failed to decode file content: Invalid base64-encoded string');
   }
 };
 
