@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer } from 'react';
 import { getSelectedFiles } from './utils';
 import { fetchAllFiles, fetchBranches } from './api';
 import { GitHubFile } from './types';
@@ -12,39 +12,96 @@ import {
   LastCommit,
 } from './components';
 
+interface State {
+  files: GitHubFile[];
+  selectedFiles: Set<string>;
+  repo: string;
+  isLoading: boolean;
+  selectedBranch: string;
+  branches: {
+    name: string;
+    lastCommit: { hash: string; message: string; timestamp: string };
+  }[];
+}
+
+type Action =
+  | { type: 'RESET' }
+  | { type: 'SET_FILES'; payload: GitHubFile[] }
+  | { type: 'SET_SELECTED_FILES'; payload: Set<string> }
+  | { type: 'SET_REPO'; payload: string }
+  | { type: 'SET_IS_LOADING'; payload: boolean }
+  | { type: 'SET_SELECTED_BRANCH'; payload: string }
+  | {
+      type: 'SET_BRANCHES';
+      payload: Array<{
+        name: string;
+        lastCommit: { hash: string; message: string; timestamp: string };
+      }>;
+    };
+
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case 'SET_FILES':
+      return { ...state, files: action.payload };
+    case 'SET_SELECTED_FILES':
+      return { ...state, selectedFiles: action.payload };
+    case 'SET_REPO':
+      return { ...state, repo: action.payload };
+    case 'SET_IS_LOADING':
+      return { ...state, isLoading: action.payload };
+    case 'SET_SELECTED_BRANCH':
+      return { ...state, selectedBranch: action.payload };
+    case 'SET_BRANCHES':
+      return { ...state, branches: action.payload };
+    case 'RESET':
+      return { ...initialState };
+    default:
+      return state;
+  }
+};
+
+const initialState: State = {
+  files: [],
+  selectedFiles: new Set(),
+  repo: '',
+  isLoading: false,
+  selectedBranch: '',
+  branches: [],
+};
+
 function App() {
-  const [files, setFiles] = useState<GitHubFile[]>([]);
-  const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
-  const [repo, setRepo] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedBranch, setSelectedBranch] = useState('');
-  const [branches, setBranches] = useState<
-    {
-      name: string;
-      lastCommit: { hash: string; message: string; timestamp: string };
-    }[]
-  >([]);
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { files, selectedFiles, repo, isLoading, selectedBranch, branches } =
+    state;
 
   useEffect(() => {
-    setSelectedFiles(new Set());
+    dispatch({ type: 'SET_SELECTED_FILES', payload: new Set() });
   }, [repo]);
 
   useEffect(() => {
     let isCancelled = false;
 
-    if (repo) {
-      setIsLoading(true);
-      fetchAllFiles(repo, selectedBranch).then((data) => {
-        if (!isCancelled) {
-          setFiles(data);
-          setIsLoading(false);
+    const fetchData = async () => {
+      if (repo) {
+        dispatch({ type: 'SET_IS_LOADING', payload: true });
+        try {
+          const files = await fetchAllFiles(repo, selectedBranch);
+          if (!isCancelled) {
+            dispatch({ type: 'SET_FILES', payload: files });
+            dispatch({ type: 'SET_IS_LOADING', payload: false });
+          }
+        } catch (error) {
+          console.error('Failed to fetch data', error);
+          dispatch({ type: 'SET_IS_LOADING', payload: false });
         }
-      });
-    }
+      }
+    };
+
+    fetchData();
 
     return () => {
       isCancelled = true;
-      setIsLoading(false);
+      dispatch({ type: 'SET_IS_LOADING', payload: false });
     };
   }, [repo, selectedBranch]);
 
@@ -59,32 +116,33 @@ function App() {
         })
       );
 
-      setBranches(branches);
-      setSelectedBranch(branches[0].name);
-      setRepo(repo);
+      dispatch({ type: 'SET_BRANCHES', payload: branches });
+      dispatch({ type: 'SET_SELECTED_BRANCH', payload: branches[0].name });
+      dispatch({ type: 'SET_REPO', payload: repo });
     } catch (error) {
       alert('Failed to fetch repository branches');
     }
   };
 
   const handleSelection = (file: GitHubFile) => {
-    setSelectedFiles((prevSelectedFiles) =>
-      getSelectedFiles(prevSelectedFiles, file)
-    );
+    const files = getSelectedFiles(selectedFiles, file);
+    dispatch({
+      type: 'SET_SELECTED_FILES',
+      payload: files,
+    });
   };
 
   const handleReset = () => {
-    setFiles([]);
-    setSelectedFiles(new Set());
-    setRepo('');
-    setIsLoading(false);
-    setSelectedBranch('');
-    setBranches([]);
+    dispatch({ type: 'RESET' });
   };
 
   const selectedBranchItem = branches.find(
     (branch) => branch.name === selectedBranch
   );
+
+  const handleBranchSelect = (branch: string) => {
+    dispatch({ type: 'SET_SELECTED_BRANCH', payload: branch });
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -102,7 +160,7 @@ function App() {
               <BranchSelector
                 branches={branches}
                 selectedBranch={selectedBranch}
-                onBranchChange={setSelectedBranch}
+                onBranchChange={handleBranchSelect}
               />
             )}
             {selectedBranchItem && (

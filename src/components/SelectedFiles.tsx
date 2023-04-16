@@ -22,6 +22,12 @@ export const SelectedFiles: React.FC<{
 
   useEffect(() => {
     const abortController = new AbortController();
+
+    if (memoizedSelectedFiles.length === 0) {
+      setTotalCharCount(0);
+      return;
+    }
+
     const promises: Promise<void>[] = [];
     const newSelectedFileContents = new Map(
       memoizedSelectedFiles.map((path) => [path, ''])
