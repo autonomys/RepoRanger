@@ -11,27 +11,28 @@ export const BranchSelector: React.FC<BranchSelectorProps> = ({
   selectedBranch,
   onBranchChange,
 }) => {
-  const handleBranchChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    onBranchChange(e.target.value);
-  };
 
   return (
     <div className="mb-4">
-      <label htmlFor="branch-select" className="block mb-2">
-        Select Branch:
-      </label>
-      <select
-        id="branch-select"
-        value={selectedBranch}
-        onChange={handleBranchChange}
-        className="border border-gray-300 rounded p-2"
-      >
+      <span className="block mb-2 text-sm font-medium text-gray-700">Select Branch:</span>
+      <div className="flex flex-wrap">
         {branches.map((branch, index) => (
-          <option key={index} value={branch}>
+          <label
+            key={index}
+            className="flex items-center mr-4 mb-2 cursor-pointer text-sm"
+          >
+            <input
+              type="radio"
+              name="branch"
+              value={branch}
+              checked={selectedBranch === branch}
+              onChange={e => onBranchChange(e.target.value)}
+              className="form-radio text-blue-500 mr-2"
+            />
             {branch}
-          </option>
+          </label>
         ))}
-      </select>
+      </div>
     </div>
-  );
+  );  
 };
