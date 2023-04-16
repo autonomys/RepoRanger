@@ -43,15 +43,15 @@ export const FileList: React.FC = () => {
           return a.localeCompare(b);
         })
       );
-  
+
       setBranches(branches);
       setSelectedBranch(branches[0]);
       setRepo(repo);
     } catch (error) {
       alert('Failed to fetch repository branches');
     }
-  };  
-  
+  };
+
   const handleSelection = (file: GitHubFile) => {
     setSelectedFiles((prevSelectedFiles) =>
       getSelectedFiles(prevSelectedFiles, file)
@@ -61,11 +61,13 @@ export const FileList: React.FC = () => {
   return (
     <div>
       <RepositoryInput onSubmit={handleRepoSubmit} />
-      <BranchSelector
-        branches={branches}
-        selectedBranch={selectedBranch}
-        onBranchChange={setSelectedBranch}
-      />
+      {repo && (
+        <BranchSelector
+          branches={branches}
+          selectedBranch={selectedBranch}
+          onBranchChange={setSelectedBranch}
+        />
+      )}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-1">
           {isLoading ? (
