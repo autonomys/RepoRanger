@@ -1,4 +1,3 @@
-// Description: Main App component
 import { useEffect, useState } from 'react';
 import { fetchAllFiles, getSelectedFiles, fetchBranches } from './utils';
 import { GitHubFile } from './types';
