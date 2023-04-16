@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { GitHubFile } from '../types';
 import { CharacterCount, SelectedFileList, CopyToClipboardButton } from './';
 import { useFileContents } from '../useFileContents';
@@ -11,15 +10,11 @@ export const SelectedFiles: React.FC<{
   repo: string;
   branch: string;
 }> = ({ selectedFiles, files, repo, branch }) => {
-  const { contents, totalCharCount } = useFileContents(
+  const { contents, totalCharCount, memoizedSelectedFiles } = useFileContents(
     selectedFiles,
     repo,
     branch
   );
-
-  const memoizedSelectedFiles = useMemo(() => {
-    return [...selectedFiles];
-  }, [selectedFiles]);
 
   return (
     <div>

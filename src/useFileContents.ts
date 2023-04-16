@@ -4,6 +4,7 @@ import { fetchFileContent } from './api';
 interface FileContents {
   contents: Map<string, string>;
   totalCharCount: number;
+  memoizedSelectedFiles: string[];
 }
 
 export const useFileContents = (
@@ -14,7 +15,13 @@ export const useFileContents = (
   const [selectedFileContents, setSelectedFileContents] = useState<
     Map<string, string>
   >(new Map());
-  const [totalCharCount, setTotalCharCount] = useState<number>(0);
+  const totalCharCount = useMemo(() => {
+    let totalChars = 0;
+    selectedFileContents.forEach((content) => {
+      totalChars += content.length;
+    });
+    return totalChars;
+  }, [selectedFileContents]);
 
   const memoizedSelectedFiles = useMemo(() => {
     return [...selectedFiles];
@@ -24,7 +31,7 @@ export const useFileContents = (
     const abortController = new AbortController();
 
     if (memoizedSelectedFiles.length === 0) {
-      setTotalCharCount(0);
+      setSelectedFileContents(new Map());
       return;
     }
 
@@ -32,7 +39,7 @@ export const useFileContents = (
     const newSelectedFileContents = new Map(
       memoizedSelectedFiles.map((path) => [path, ''])
     );
-    let totalChars = 0;
+
     memoizedSelectedFiles.forEach((path) => {
       const promise = fetchFileContent(
         repo,
@@ -40,10 +47,8 @@ export const useFileContents = (
         path,
         abortController.signal
       )
-        .then(({ content, size }) => {
+        .then(({ content }) => {
           newSelectedFileContents.set(path, content || '');
-          totalChars += size;
-          setTotalCharCount(totalChars);
         })
         .catch((error) => {
           console.error(`Error fetching file content for ${path}:`, error);
@@ -59,5 +64,5 @@ export const useFileContents = (
     };
   }, [memoizedSelectedFiles, repo, branch]);
 
-  return { contents: selectedFileContents, totalCharCount };
+  return { contents: selectedFileContents, totalCharCount, memoizedSelectedFiles };
 };
