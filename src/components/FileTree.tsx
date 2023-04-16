@@ -22,7 +22,11 @@ export const FileTree: React.FC<FileTreeProps> = ({
           onChange={() => onSelection(file)}
           className="form-checkbox text-blue-500"
         />
-        <span className={isSelected ? 'font-semibold' : ''}>{file.path}</span>
+        <span
+          className={`truncate w-full ${isSelected ? 'font-semibold' : ''}`}
+        >
+          {file.path}
+        </span>
       </label>
     </li>
   );

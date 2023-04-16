@@ -6,7 +6,8 @@ export const SelectedFiles: React.FC<{
   selectedFiles: Set<string>;
   files: GitHubFile[];
   repo: string;
-}> = ({ selectedFiles, files, repo }) => {
+  branch: string;
+}> = ({ selectedFiles, files, repo, branch }) => {
   const [selectedFileContents, setSelectedFileContents] = useState<
     Map<string, string>
   >(new Map());
@@ -18,7 +19,7 @@ export const SelectedFiles: React.FC<{
       [...selectedFiles].map((path) => [path, ''])
     );
     selectedFiles.forEach((path) => {
-      const promise = fetchFileContent(repo, path, abortController.signal).then(
+      const promise = fetchFileContent(repo, branch, path, abortController.signal).then(
         (content) => {
           newSelectedFileContents.set(path, content);
         }
@@ -32,7 +33,7 @@ export const SelectedFiles: React.FC<{
     return () => {
       abortController.abort();
     };
-  }, [selectedFiles, repo]);
+  }, [selectedFiles, repo, branch]);
 
   const handleCopy = () => {
     const content = [...selectedFileContents.values()].join('\n\n');
