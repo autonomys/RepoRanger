@@ -35,16 +35,23 @@ export const FileList: React.FC = () => {
 
   const handleRepoSubmit = async (repo: string) => {
     try {
-      const branches = await fetchBranches(repo);
+      const branches = await fetchBranches(repo).then((branches) =>
+        branches.sort((a, b) => {
+          // Sorting branches so that 'main' or 'master' always comes first
+          if (a === 'main' || a === 'master') return -1;
+          if (b === 'main' || b === 'master') return 1;
+          return a.localeCompare(b);
+        })
+      );
+  
       setBranches(branches);
       setSelectedBranch(branches[0]);
       setRepo(repo);
     } catch (error) {
       alert('Failed to fetch repository branches');
     }
-  };
+  };  
   
-
   const handleSelection = (file: GitHubFile) => {
     setSelectedFiles((prevSelectedFiles) =>
       getSelectedFiles(prevSelectedFiles, file)
