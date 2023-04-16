@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { fetchAllFiles, getSelectedFiles, fetchBranches } from './utils';
+import { getSelectedFiles } from './utils';
+import { fetchAllFiles, fetchBranches } from './api';
 import { GitHubFile } from './types';
 import {
   RepositoryInput,
