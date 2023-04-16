@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FileTree, FileSearchBar } from './';
 import { GitHubFile } from '../types';
+import { sortFilesBySelection } from '../utils';
 
 interface FileListProps {
   files: GitHubFile[];
@@ -15,7 +16,9 @@ export const FileList: React.FC<FileListProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredFiles = files.filter((file) =>
+  const sortedFiles = sortFilesBySelection(files, selectedFiles);
+
+  const filteredFiles = sortedFiles.filter((file) =>
     file.path.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
