@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 
 interface RepositoryInputProps {
   onSubmit: (repo: string) => void;
+  onReset: () => void;
 }
 
 export const RepositoryInput: React.FC<RepositoryInputProps> = ({
   onSubmit,
+  onReset,
 }) => {
   const [inputValue, setInputValue] = useState('');
 
@@ -13,8 +15,7 @@ export const RepositoryInput: React.FC<RepositoryInputProps> = ({
     setInputValue(e.target.value);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     const repoMatch = inputValue.match(/github.com\/(.+\/.+)(\/|$)/i);
     if (repoMatch && repoMatch[1]) {
       onSubmit(repoMatch[1]);
@@ -23,8 +24,13 @@ export const RepositoryInput: React.FC<RepositoryInputProps> = ({
     }
   };
 
+  const handleReset = () => {
+    setInputValue('');
+    onReset();
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="mb-4">
+    <div className="mb-4">
       <label htmlFor="repo-url" className="block mb-2">
         GitHub Repository URL:
       </label>
@@ -39,12 +45,20 @@ export const RepositoryInput: React.FC<RepositoryInputProps> = ({
           aria-label="GitHub Repository URL"
         />
         <button
-          type="submit"
+          onClick={handleSubmit}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r"
         >
           Load Repository
         </button>
+        {inputValue && (
+          <button
+            onClick={handleReset}
+            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ml-2"
+          >
+            Reset
+          </button>
+        )}
       </div>
-    </form>
+    </div>
   );
 };
