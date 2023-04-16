@@ -9,6 +9,7 @@ import {
   Loading,
   NoRepositorySelected,
   FileList,
+  LastCommit,
 } from './components';
 
 function App() {
@@ -17,7 +18,12 @@ function App() {
   const [repo, setRepo] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState('');
-  const [branches, setBranches] = useState<string[]>([]);
+  const [branches, setBranches] = useState<
+    {
+      name: string;
+      lastCommit: { hash: string; message: string; timestamp: string };
+    }[]
+  >([]);
 
   useEffect(() => {
     setSelectedFiles(new Set());
@@ -44,17 +50,10 @@ function App() {
 
   const handleRepoSubmit = async (repo: string) => {
     try {
-      const branches = await fetchBranches(repo).then((branches) =>
-        branches.sort((a, b) => {
-          // Sorting branches so that 'main' or 'master' always comes first
-          if (a === 'main' || a === 'master') return -1;
-          if (b === 'main' || b === 'master') return 1;
-          return a.localeCompare(b);
-        })
-      );
+      const branches = await fetchBranches(repo);
 
       setBranches(branches);
-      setSelectedBranch(branches[0]);
+      setSelectedBranch(branches[0].name);
       setRepo(repo);
     } catch (error) {
       alert('Failed to fetch repository branches');
@@ -76,19 +75,29 @@ function App() {
     setBranches([]);
   };
 
+  const selectedBranchItem = branches.find(
+    (branch) => branch.name === selectedBranch
+  );
+
   return (
     <div className="min-h-screen bg-gray-100">
-      <header className="bg-blue-500 text-white text-xl p-4">RepoRanger</header>
+      <header className="bg-blue-500 text-white text-xl p-4 font-semibold">RepoRanger</header>
       <main className="p-4">
         <div className="container mx-auto">
           <div>
-            <RepositoryInput onSubmit={handleRepoSubmit} onReset={handleReset} />
+            <RepositoryInput
+              onSubmit={handleRepoSubmit}
+              onReset={handleReset}
+            />
             {repo && (
               <BranchSelector
                 branches={branches}
                 selectedBranch={selectedBranch}
                 onBranchChange={setSelectedBranch}
               />
+            )}
+            {selectedBranchItem && (
+              <LastCommit commit={selectedBranchItem.lastCommit} repo={repo} />
             )}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-1">

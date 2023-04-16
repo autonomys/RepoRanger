@@ -24,7 +24,7 @@ export const FileList: React.FC<FileListProps> = ({
 
   return (
     <div className="bg-white shadow p-6 rounded">
-      <h2 className="font-bold mb-4">Files:</h2>
+      <h2 className="font-semibold mb-4">Files:</h2>
       <FileSearchBar value={searchQuery} onChange={setSearchQuery} />
 
       <ul className="list-none">

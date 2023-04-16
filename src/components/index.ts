@@ -6,3 +6,4 @@ export { NoRepositorySelected } from './NoRepositorySelected';
 export { FileList } from './FileList'; 
 export { SelectedFiles } from './SelectedFiles';
 export { RepositoryInput } from './RepositoryInput';
+export { LastCommit } from './LastCommit';

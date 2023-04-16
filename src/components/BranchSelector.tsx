@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface BranchSelectorProps {
-  branches: string[];
+  branches: { name: string, lastCommit: { hash: string, message: string, timestamp: string } }[];
   selectedBranch: string;
   onBranchChange: (branch: string) => void;
 }
@@ -19,17 +19,17 @@ export const BranchSelector: React.FC<BranchSelectorProps> = ({
         {branches.map((branch, index) => (
           <label
             key={index}
-            className="flex items-center mr-4 mb-2 cursor-pointer text-sm"
+            className="flex items-center mr-4 mb-2 cursor-pointer text-sm font-medium"
           >
             <input
               type="radio"
               name="branch"
-              value={branch}
-              checked={selectedBranch === branch}
+              value={branch.name}
+              checked={selectedBranch === branch.name}
               onChange={e => onBranchChange(e.target.value)}
               className="form-radio text-blue-500 mr-2"
             />
-            {branch}
+            {branch.name}
           </label>
         ))}
       </div>

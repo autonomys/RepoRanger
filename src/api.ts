@@ -64,7 +64,7 @@ export const fetchFileContent = async (
   }
 };
 
-export const fetchBranches = async (repo: string): Promise<string[]> => {
+export const fetchBranches = async (repo: string): Promise<{ name: string, lastCommit: { hash: string, message: string, timestamp: string } }[]> => {
   const url = `https://api.github.com/repos/${repo}/branches`;
   const response = await fetch(url, options);
 
@@ -77,5 +77,25 @@ export const fetchBranches = async (repo: string): Promise<string[]> => {
     throw new Error('Unexpected response format from GitHub API');
   }
 
-  return data.map((branch) => branch.name);
+  const branchPromises = data.map(async (branch) => {
+    const commitUrl = `https://api.github.com/repos/${repo}/commits/${branch.commit.sha}`;
+    const commitResponse = await fetch(commitUrl, options);
+
+    if (!commitResponse.ok) {
+      throw new Error('Failed to fetch last commit for branch');
+    }
+
+    const commitData = await commitResponse.json();
+    return {
+      name: branch.name,
+      lastCommit: {
+        hash: commitData.sha,
+        message: commitData.commit.message,
+        timestamp: commitData.commit.author.date,
+      },
+    };
+  });
+
+  const branches = await Promise.all(branchPromises);
+  return branches;
 };
