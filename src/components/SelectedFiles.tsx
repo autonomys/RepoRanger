@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { GitHubFile } from '../types';
 import { fetchFileContent } from '../utils';
 
@@ -13,14 +13,18 @@ export const SelectedFiles: React.FC<{
   >(new Map());
   const [totalCharCount, setTotalCharCount] = useState<number>(0);
 
+  const memoizedSelectedFiles = useMemo(() => {
+    return [...selectedFiles];
+  }, [selectedFiles]);
+
   useEffect(() => {
     const abortController = new AbortController();
     const promises: Promise<void>[] = [];
     const newSelectedFileContents = new Map(
-      [...selectedFiles].map((path) => [path, ''])
+      memoizedSelectedFiles.map((path) => [path, ''])
     );
     let totalChars = 0;
-    selectedFiles.forEach((path) => {
+    memoizedSelectedFiles.forEach((path) => {
       const promise = fetchFileContent(
         repo,
         branch,
@@ -44,7 +48,7 @@ export const SelectedFiles: React.FC<{
     return () => {
       abortController.abort();
     };
-  }, [selectedFiles, repo, branch]);
+  }, [memoizedSelectedFiles, repo, branch]);
 
   const handleCopy = () => {
     const content = [...selectedFileContents.values()].join('\n\n');
@@ -72,7 +76,7 @@ export const SelectedFiles: React.FC<{
             Total character count: {totalCharCount}
           </div>
           <pre className="bg-gray-100 p-4 rounded overflow-x-auto">
-            {[...selectedFiles].map((path, index) => {
+            {memoizedSelectedFiles.map((path, index) => {
               const file = files.find((f) => f.path === path);
               if (file) {
                 const fileContent = selectedFileContents.get(path);
