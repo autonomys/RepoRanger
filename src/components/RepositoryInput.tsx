@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+// this is for demonstration purposes only
+
 interface RepositoryInputProps {
   onSubmit: (repo: string) => void;
   onReset: () => void;
