@@ -36,10 +36,7 @@ export const fetchAllFiles = async (repo: string, branch: string, path = '') => 
     let files: GitHubFile[] = [];
 
     for (const file of data) {
-      if (file.type === 'dir') {
-        const children = await fetchAllFiles(repo, branch, file.path);
-        files = files.concat(children);
-      } else {
+      if (file.type === 'blob') {
         files.push({
           name: file.name,
           path: file.path,
