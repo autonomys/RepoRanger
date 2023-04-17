@@ -30,8 +30,8 @@ export type Action =
   | { type: 'SET_FILES'; payload: GitHubFile[] }
   | { type: 'SET_SELECTED_FILES'; payload: Set<string> }
   | { type: 'SET_REPO'; payload: string }
-  | { type: 'SET_IS_LOADING'; payload: boolean }
-  | { type: 'SET_IS_FILE_CONTENTS_LOADING'; payload: boolean }
+  | { type: 'SET_IS_LOADING_REPO_FILES'; payload: boolean }
+  | { type: 'SET_IS_LOADING_FILE_CONTENTS'; payload: boolean }
   | { type: 'SET_SELECTED_BRANCH'; payload: string }
   | {
       type: 'SET_BRANCHES';
@@ -49,9 +49,9 @@ const reducer = (state: State, action: Action): State => {
       return { ...state, selectedFiles: action.payload };
     case 'SET_REPO':
       return { ...state, repo: action.payload };
-    case 'SET_IS_LOADING':
+    case 'SET_IS_LOADING_REPO_FILES':
       return { ...state, isLoadingRepoFiles: action.payload };
-    case 'SET_IS_FILE_CONTENTS_LOADING':
+    case 'SET_IS_LOADING_FILE_CONTENTS':
       return { ...state, isLoadingFileContents: action.payload };
     case 'SET_SELECTED_BRANCH':
       return { ...state, selectedBranch: action.payload };
@@ -95,16 +95,16 @@ function App() {
 
     const fetchData = async () => {
       if (repo) {
-        dispatch({ type: 'SET_IS_LOADING', payload: true });
+        dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: true });
         try {
           const files = await fetchAllFiles(repo, selectedBranch);
           if (!isCancelled) {
             dispatch({ type: 'SET_FILES', payload: files });
-            dispatch({ type: 'SET_IS_LOADING', payload: false });
+            dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
           }
         } catch (error) {
           console.error('Failed to fetch data', error);
-          dispatch({ type: 'SET_IS_LOADING', payload: false });
+          dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
         }
       }
     };
@@ -113,7 +113,7 @@ function App() {
 
     return () => {
       isCancelled = true;
-      dispatch({ type: 'SET_IS_LOADING', payload: false });
+      dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
     };
   }, [repo, selectedBranch]);
 

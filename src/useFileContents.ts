@@ -43,7 +43,7 @@ export const useFileContents = (
       memoizedSelectedFiles.map((path) => [path, ''])
     );
 
-    dispatch({ type: 'SET_IS_FILE_CONTENTS_LOADING', payload: true });
+    dispatch({ type: 'SET_IS_LOADING_FILE_CONTENTS', payload: true });
     
     memoizedSelectedFiles.forEach((path) => {
       const promise = fetchFileContent(
@@ -63,7 +63,7 @@ export const useFileContents = (
     
     Promise.all(promises).then(() => {
       setSelectedFileContents(newSelectedFileContents);
-      dispatch({ type: 'SET_IS_FILE_CONTENTS_LOADING', payload: false });
+      dispatch({ type: 'SET_IS_LOADING_FILE_CONTENTS', payload: false });
     });
 
     return () => {
