@@ -1,10 +1,5 @@
 import { GitHubFile } from '../types';
-import {
-  CharacterCount,
-  SelectedFileList,
-  Loading,
-  Button,
-} from './';
+import { CharacterCount, SelectedFileList, Loading, Button } from './';
 import { useFileContents } from '../useFileContents';
 import { Action } from '../App';
 
@@ -52,7 +47,7 @@ export const SelectedFiles: React.FC<{
 
   return (
     <div>
-      <div className="flex justify-between items-start mb-4 gap-4">
+      <div className="flex justify-between items-start mb-4 gap-2">
         <CharacterCount
           totalCharCount={totalCharCount}
           charLimit={CHARACTER_LIMIT}
@@ -73,14 +68,11 @@ export const SelectedFiles: React.FC<{
       {isLoadingFileContents ? (
         <Loading />
       ) : selectedFiles.size > 0 ? (
-        <>
-          <h2 className="font-semibold">Selected Files:</h2>
-          <SelectedFileList
-            selectedFiles={memoizedSelectedFiles}
-            files={files}
-            selectedFileContents={contents}
-          />
-        </>
+        <SelectedFileList
+          selectedFiles={memoizedSelectedFiles}
+          files={files}
+          selectedFileContents={contents}
+        />
       ) : (
         <p className="text-gray-600">
           Please select files to view their content.

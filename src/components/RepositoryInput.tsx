@@ -35,7 +35,7 @@ export const RepositoryInput: React.FC<RepositoryInputProps> = ({
       <label htmlFor="repo-url" className="block mb-2">
         GitHub Repository URL:
       </label>
-      <div className="flex items-stretch gap-4">
+      <div className="flex items-stretch gap-2">
         <input
           type="text"
           id="repo-url"
@@ -46,7 +46,7 @@ export const RepositoryInput: React.FC<RepositoryInputProps> = ({
           aria-label="GitHub Repository URL"
         />
         <Button onClick={handleSubmit} className="rounded-r">
-          Load Repository
+          Load
         </Button>
         {inputValue && (
           <Button onClick={handleReset} variant="danger" className="ml-2">
