@@ -1,18 +1,18 @@
 import React from 'react';
 
 interface FileExtensionFilterProps {
-  selectedFileExtension: string;
+  selectedExtensions: string[];
   onSelectExtension: (extension: string) => void;
   extensions: string[];
 }
 
 export const FileExtensionFilter: React.FC<FileExtensionFilterProps> = ({
-  selectedFileExtension,
+  selectedExtensions,
   onSelectExtension,
   extensions,
 }) => {
   const handleExtensionChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     onSelectExtension(event.target.value);
   };
@@ -22,20 +22,24 @@ export const FileExtensionFilter: React.FC<FileExtensionFilterProps> = ({
       <label htmlFor="file-extension" className="block mb-2">
         Filter by file type:
       </label>
-      <select
-        id="file-extension"
-        value={selectedFileExtension}
-        onChange={handleExtensionChange}
-        className="border border-gray-300 rounded p-2"
-        aria-label="Filter by file type"
-      >
-        <option value="">All files</option>
+      <div className="flex flex-wrap">
         {extensions.map((extension) => (
-          <option key={extension} value={extension}>
-            {extension}
-          </option>
+          <label
+            key={extension}
+            className="inline-flex items-center mr-4 mb-2"
+          >
+            <input
+              type="checkbox"
+              className="form-checkbox"
+              value={extension}
+              checked={selectedExtensions.includes(extension)}
+              onChange={handleExtensionChange}
+              aria-label={`Filter by ${extension} file type`}
+            />
+            <span className="ml-2">{extension}</span>
+          </label>
         ))}
-      </select>
+      </div>
     </div>
   );
 };

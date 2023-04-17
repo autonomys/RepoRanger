@@ -29,9 +29,9 @@ interface State {
     name: string;
     lastCommit: { hash: string; message: string; timestamp: string };
   }[];
-  selectedFileExtension: string;
   searchQuery: string;
   fileExtensions: string[];
+  selectedExtensions: string[];
 }
 
 export type Action =
@@ -49,7 +49,7 @@ export type Action =
         lastCommit: { hash: string; message: string; timestamp: string };
       }>;
     }
-  | { type: 'SET_SELECTED_FILE_EXTENSION'; payload: string }
+  | { type: 'SET_SELECTED_FILE_EXTENSION'; payload: string[] }
   | { type: 'SET_SEARCH_QUERY'; payload: string }
   | { type: 'SET_FILE_EXTENSIONS'; payload: string[] };
 
@@ -74,7 +74,7 @@ const reducer = (state: State, action: Action): State => {
     case 'SET_SELECTED_FILE_EXTENSION':
       return {
         ...state,
-        selectedFileExtension: action.payload,
+        selectedExtensions: action.payload,
       };
     case 'SET_SEARCH_QUERY':
       return {
@@ -99,7 +99,7 @@ const initialState: State = {
   isLoadingFileContents: false,
   selectedBranch: '',
   branches: [],
-  selectedFileExtension: '',
+  selectedExtensions: [],
   searchQuery: '',
   fileExtensions: [],
 };
@@ -114,7 +114,7 @@ function App() {
     selectedBranch,
     branches,
     isLoadingFileContents,
-    selectedFileExtension,
+    selectedExtensions,
     searchQuery,
     fileExtensions,
   } = state;
@@ -192,11 +192,18 @@ function App() {
   };
 
   const handleSelectFileExtension = (extension: string) => {
-    dispatch({
-      type: 'SET_SELECTED_FILE_EXTENSION',
-      payload: extension,
-    });
-  };
+    if (selectedExtensions.includes(extension)) {
+      dispatch({
+        type: 'SET_SELECTED_FILE_EXTENSION',
+        payload: selectedExtensions.filter((ext) => ext !== extension),
+      });
+    } else {
+      dispatch({
+        type: 'SET_SELECTED_FILE_EXTENSION',
+        payload: [...selectedExtensions, extension],
+      });
+    }
+  };  
 
   const handleSearchQuery = (extension: string) => {
     dispatch({
@@ -207,19 +214,19 @@ function App() {
 
   const displayedFiles = useMemo(() => {
     let filesToDisplay = files;
-
-    if (selectedFileExtension) {
+  
+    if (selectedExtensions.length > 0) {
       filesToDisplay = files.filter((file) =>
-        file.path.endsWith(selectedFileExtension)
+        selectedExtensions.some((ext) => file.path.endsWith(`.${ext}`))
       );
     }
-
+  
     return sortFilesBySelection(filesToDisplay, selectedFiles).filter((file) =>
       file.path
         .toLowerCase()
         .includes(searchQuery ? searchQuery.toLowerCase() : '')
     );
-  }, [files, selectedFileExtension, selectedFiles, searchQuery]);
+  }, [files, selectedExtensions, selectedFiles, searchQuery]);  
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -247,7 +254,7 @@ function App() {
                   repo={repo}
                 />
                 <FileExtensionFilter
-                  selectedFileExtension={selectedFileExtension}
+                  selectedExtensions={selectedExtensions}
                   onSelectExtension={handleSelectFileExtension}
                   extensions={fileExtensions}
                 />
