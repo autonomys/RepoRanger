@@ -16,7 +16,8 @@ interface State {
   files: GitHubFile[];
   selectedFiles: Set<string>;
   repo: string;
-  isLoading: boolean;
+  isLoadingRepoFiles: boolean;
+  isLoadingFileContents: boolean;
   selectedBranch: string;
   branches: {
     name: string;
@@ -24,12 +25,13 @@ interface State {
   }[];
 }
 
-type Action =
+export type Action =
   | { type: 'RESET' }
   | { type: 'SET_FILES'; payload: GitHubFile[] }
   | { type: 'SET_SELECTED_FILES'; payload: Set<string> }
   | { type: 'SET_REPO'; payload: string }
   | { type: 'SET_IS_LOADING'; payload: boolean }
+  | { type: 'SET_IS_FILE_CONTENTS_LOADING'; payload: boolean }
   | { type: 'SET_SELECTED_BRANCH'; payload: string }
   | {
       type: 'SET_BRANCHES';
@@ -48,7 +50,9 @@ const reducer = (state: State, action: Action): State => {
     case 'SET_REPO':
       return { ...state, repo: action.payload };
     case 'SET_IS_LOADING':
-      return { ...state, isLoading: action.payload };
+      return { ...state, isLoadingRepoFiles: action.payload };
+    case 'SET_IS_FILE_CONTENTS_LOADING':
+      return { ...state, isLoadingFileContents: action.payload };
     case 'SET_SELECTED_BRANCH':
       return { ...state, selectedBranch: action.payload };
     case 'SET_BRANCHES':
@@ -64,15 +68,23 @@ const initialState: State = {
   files: [],
   selectedFiles: new Set(),
   repo: '',
-  isLoading: false,
+  isLoadingRepoFiles: false,
+  isLoadingFileContents: false,
   selectedBranch: '',
   branches: [],
 };
 
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { files, selectedFiles, repo, isLoading, selectedBranch, branches } =
-    state;
+  const {
+    files,
+    selectedFiles,
+    repo,
+    isLoadingRepoFiles,
+    selectedBranch,
+    branches,
+    isLoadingFileContents,
+  } = state;
 
   useEffect(() => {
     dispatch({ type: 'SET_SELECTED_FILES', payload: new Set() });
@@ -168,7 +180,7 @@ function App() {
             )}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-1">
-                {isLoading ? (
+                {isLoadingRepoFiles ? (
                   <Loading />
                 ) : repo ? (
                   <FileList
@@ -188,6 +200,8 @@ function App() {
                       files={files}
                       repo={repo}
                       branch={selectedBranch}
+                      dispatch={dispatch}
+                      isLoadingFileContents={isLoadingFileContents}
                     />
                   </div>
                 </div>

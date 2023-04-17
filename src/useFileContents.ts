@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { fetchFileContent } from './api';
+import { Action } from './App';
 
 interface FileContents {
   contents: Map<string, string>;
@@ -10,11 +11,13 @@ interface FileContents {
 export const useFileContents = (
   selectedFiles: Set<string>,
   repo: string,
-  branch: string
+  branch: string,
+  dispatch: React.Dispatch<Action>
 ): FileContents => {
   const [selectedFileContents, setSelectedFileContents] = useState<
     Map<string, string>
   >(new Map());
+  
   const totalCharCount = useMemo(() => {
     let totalChars = 0;
     selectedFileContents.forEach((content) => {
@@ -40,6 +43,8 @@ export const useFileContents = (
       memoizedSelectedFiles.map((path) => [path, ''])
     );
 
+    dispatch({ type: 'SET_IS_FILE_CONTENTS_LOADING', payload: true });
+    
     memoizedSelectedFiles.forEach((path) => {
       const promise = fetchFileContent(
         repo,
@@ -55,14 +60,16 @@ export const useFileContents = (
         });
       promises.push(promise);
     });
+    
     Promise.all(promises).then(() => {
       setSelectedFileContents(newSelectedFileContents);
+      dispatch({ type: 'SET_IS_FILE_CONTENTS_LOADING', payload: false });
     });
 
     return () => {
       abortController.abort();
     };
-  }, [memoizedSelectedFiles, repo, branch]);
+  }, [memoizedSelectedFiles, repo, branch, dispatch]);
 
   return { contents: selectedFileContents, totalCharCount, memoizedSelectedFiles };
 };

@@ -1,6 +1,12 @@
 import { GitHubFile } from '../types';
-import { CharacterCount, SelectedFileList, CopyToClipboardButton } from './';
+import {
+  CharacterCount,
+  SelectedFileList,
+  CopyToClipboardButton,
+  Loading,
+} from './';
 import { useFileContents } from '../useFileContents';
+import { Action } from '../App';
 
 const CHARACTER_LIMIT = 15000;
 
@@ -9,11 +15,21 @@ export const SelectedFiles: React.FC<{
   files: GitHubFile[];
   repo: string;
   branch: string;
-}> = ({ selectedFiles, files, repo, branch }) => {
+  dispatch: React.Dispatch<Action>;
+  isLoadingFileContents: boolean;
+}> = ({
+  selectedFiles,
+  files,
+  repo,
+  branch,
+  dispatch,
+  isLoadingFileContents,
+}) => {
   const { contents, totalCharCount, memoizedSelectedFiles } = useFileContents(
     selectedFiles,
     repo,
-    branch
+    branch,
+    dispatch
   );
 
   return (
@@ -29,7 +45,9 @@ export const SelectedFiles: React.FC<{
           />
         ) : null}
       </div>
-      {selectedFiles.size > 0 ? (
+      {isLoadingFileContents ? (
+        <Loading />
+      ) : selectedFiles.size > 0 ? (
         <>
           <h2 className="font-semibold">Selected Files:</h2>
           <SelectedFileList
