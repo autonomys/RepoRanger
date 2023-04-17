@@ -4,6 +4,7 @@ import {
   SelectedFileList,
   CopyToClipboardButton,
   Loading,
+  Button,
 } from './';
 import { useFileContents } from '../useFileContents';
 import { Action } from '../App';
@@ -40,9 +41,14 @@ export const SelectedFiles: React.FC<{
           charLimit={CHARACTER_LIMIT}
         />
         {selectedFiles.size ? (
-          <CopyToClipboardButton
-            content={[...contents.values()].join('\n\n')}
-          />
+          <>
+            <CopyToClipboardButton
+              content={[...contents.values()].join('\n\n')}
+            />
+            <Button onClick={() => dispatch({ type: 'CLEAR_SELECTED_FILES' })}>
+              Clear All
+            </Button>
+          </>
         ) : null}
       </div>
       {isLoadingFileContents ? (

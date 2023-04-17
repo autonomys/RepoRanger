@@ -11,3 +11,4 @@ export { CharacterCount } from './CharacterCount';
 export { SelectedFileList } from './SelectedFileList';
 export { CopyToClipboardButton } from './CopyToClipboardButton';
 export { FileExtensionFilter } from './FileExtensionFilter';
+export { Button } from './Button';
