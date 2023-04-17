@@ -1,5 +1,9 @@
-import { useEffect, useReducer } from 'react';
-import { getSelectedFiles } from './utils';
+import { useEffect, useReducer, useMemo } from 'react';
+import {
+  getSelectedFiles,
+  sortFilesBySelection,
+  getFileExtensions,
+} from './utils';
 import { fetchAllFiles, fetchBranches } from './api';
 import { GitHubFile } from './types';
 import {
@@ -10,6 +14,8 @@ import {
   NoRepositorySelected,
   FileList,
   LastCommit,
+  FileExtensionFilter,
+  FileSearchBar,
 } from './components';
 
 interface State {
@@ -23,6 +29,9 @@ interface State {
     name: string;
     lastCommit: { hash: string; message: string; timestamp: string };
   }[];
+  searchQuery: string;
+  fileExtensions: string[];
+  selectedExtensions: string[];
 }
 
 export type Action =
@@ -39,7 +48,10 @@ export type Action =
         name: string;
         lastCommit: { hash: string; message: string; timestamp: string };
       }>;
-    };
+    }
+  | { type: 'SET_SELECTED_FILE_EXTENSION'; payload: string[] }
+  | { type: 'SET_SEARCH_QUERY'; payload: string }
+  | { type: 'SET_FILE_EXTENSIONS'; payload: string[] };
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -59,6 +71,21 @@ const reducer = (state: State, action: Action): State => {
       return { ...state, branches: action.payload };
     case 'RESET':
       return { ...initialState };
+    case 'SET_SELECTED_FILE_EXTENSION':
+      return {
+        ...state,
+        selectedExtensions: action.payload,
+      };
+    case 'SET_SEARCH_QUERY':
+      return {
+        ...state,
+        searchQuery: action.payload,
+      };
+    case 'SET_FILE_EXTENSIONS':
+      return {
+        ...state,
+        fileExtensions: action.payload,
+      };
     default:
       return state;
   }
@@ -72,6 +99,9 @@ const initialState: State = {
   isLoadingFileContents: false,
   selectedBranch: '',
   branches: [],
+  selectedExtensions: [],
+  searchQuery: '',
+  fileExtensions: [],
 };
 
 function App() {
@@ -84,6 +114,9 @@ function App() {
     selectedBranch,
     branches,
     isLoadingFileContents,
+    selectedExtensions,
+    searchQuery,
+    fileExtensions,
   } = state;
 
   useEffect(() => {
@@ -98,9 +131,11 @@ function App() {
         dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: true });
         try {
           const files = await fetchAllFiles(repo, selectedBranch);
+          const fileExtensions = getFileExtensions(files);
           if (!isCancelled) {
             dispatch({ type: 'SET_FILES', payload: files });
             dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
+            dispatch({ type: 'SET_FILE_EXTENSIONS', payload: fileExtensions });
           }
         } catch (error) {
           console.error('Failed to fetch data', error);
@@ -156,6 +191,43 @@ function App() {
     dispatch({ type: 'SET_SELECTED_BRANCH', payload: branch });
   };
 
+  const handleSelectFileExtension = (extension: string) => {
+    if (selectedExtensions.includes(extension)) {
+      dispatch({
+        type: 'SET_SELECTED_FILE_EXTENSION',
+        payload: selectedExtensions.filter((ext) => ext !== extension),
+      });
+    } else {
+      dispatch({
+        type: 'SET_SELECTED_FILE_EXTENSION',
+        payload: [...selectedExtensions, extension],
+      });
+    }
+  };
+
+  const handleSearchQuery = (extension: string) => {
+    dispatch({
+      type: 'SET_SEARCH_QUERY',
+      payload: extension,
+    });
+  };
+
+  const displayedFiles = useMemo(() => {
+    let filesToDisplay = files;
+
+    if (selectedExtensions.length > 0) {
+      filesToDisplay = files.filter((file) =>
+        selectedExtensions.some((ext) => file.path.endsWith(`.${ext}`))
+      );
+    }
+
+    return sortFilesBySelection(filesToDisplay, selectedFiles).filter((file) =>
+      file.path
+        .toLowerCase()
+        .includes(searchQuery ? searchQuery.toLowerCase() : '')
+    );
+  }, [files, selectedExtensions, selectedFiles, searchQuery]);
+
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-blue-500 text-white text-xl p-4 font-semibold">
@@ -176,7 +248,27 @@ function App() {
               />
             )}
             {selectedBranchItem && (
-              <LastCommit commit={selectedBranchItem.lastCommit} repo={repo} />
+              <>
+                <LastCommit
+                  commit={selectedBranchItem.lastCommit}
+                  repo={repo}
+                />
+                <FileExtensionFilter
+                  selectedExtensions={selectedExtensions}
+                  onSelectExtension={handleSelectFileExtension}
+                  extensions={fileExtensions}
+                  onClearExtensions={() =>
+                    dispatch({
+                      type: 'SET_SELECTED_FILE_EXTENSION',
+                      payload: [],
+                    })
+                  }
+                />
+                <FileSearchBar
+                  value={searchQuery}
+                  onChange={handleSearchQuery}
+                />
+              </>
             )}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-1">
@@ -184,7 +276,7 @@ function App() {
                   <Loading />
                 ) : repo ? (
                   <FileList
-                    files={files}
+                    files={displayedFiles}
                     selectedFiles={selectedFiles}
                     handleSelection={handleSelection}
                   />

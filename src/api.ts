@@ -26,7 +26,7 @@ export const fetchAllFiles = async (repo: string, branch: string, signal?: Abort
   const files: GitHubFile[] = data
     .filter((file) => file.type === 'blob')
     .map((file, index) => ({
-      name: file.name,
+      name: file.path.split('/').pop() || '',
       path: file.path,
       index,
     }));
