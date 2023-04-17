@@ -13,7 +13,7 @@ export const FileList: React.FC<FileListProps> = ({
   handleSelection,
 }) => {
   return (
-    <div className="bg-white shadow p-6 rounded">
+    <div className="bg-white shadow p-6 rounded min-h-full">
       <h2 className="font-semibold mb-4">Files:</h2>
       <ul className="list-none">
         {files.map((file, index) => (

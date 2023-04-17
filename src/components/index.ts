@@ -1,5 +1,4 @@
 export { FileTree } from './FileTree';
-export { FileSearchBar } from './FileSearchBar';
 export { BranchSelector } from './BranchSelector';
 export { Loading } from './Loading';
 export { NoRepositorySelected } from './NoRepositorySelected';
@@ -10,5 +9,5 @@ export { LastCommit } from './LastCommit';
 export { CharacterCount } from './CharacterCount';
 export { SelectedFileList } from './SelectedFileList';
 export { CopyToClipboardButton } from './CopyToClipboardButton';
-export { FileExtensionFilter } from './FileExtensionFilter';
+export { FileSearchAndFilter } from './FileSearchAndFilter';
 export { Button } from './Button';
