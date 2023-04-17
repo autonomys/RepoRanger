@@ -2,7 +2,6 @@ import { GitHubFile } from '../types';
 import {
   CharacterCount,
   SelectedFileList,
-  CopyToClipboardButton,
   Loading,
   Button,
 } from './';
@@ -33,6 +32,24 @@ export const SelectedFiles: React.FC<{
     dispatch
   );
 
+  const handleDownload = () => {
+    const fileContent = [...contents.values()].join('\n\n');
+    const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${repo}-${branch}-selected-files.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleCopy = () => {
+    const fileContent = [...contents.values()].join('\n\n');
+    navigator.clipboard.writeText(fileContent).then(() => {
+      alert('Contents copied to clipboard.');
+    });
+  };
+
   return (
     <div>
       <div className="flex justify-between items-start mb-4 gap-4">
@@ -42,11 +59,13 @@ export const SelectedFiles: React.FC<{
         />
         {selectedFiles.size ? (
           <>
-            <CopyToClipboardButton
-              content={[...contents.values()].join('\n\n')}
-            />
-            <Button onClick={() => dispatch({ type: 'CLEAR_SELECTED_FILES' })}>
-              Clear All
+            <Button onClick={handleCopy}>Copy</Button>
+            <Button onClick={handleDownload}>Download</Button>
+            <Button
+              variant="danger"
+              onClick={() => dispatch({ type: 'CLEAR_SELECTED_FILES' })}
+            >
+              Clear
             </Button>
           </>
         ) : null}

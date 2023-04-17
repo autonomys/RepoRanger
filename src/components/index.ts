@@ -8,6 +8,5 @@ export { RepositoryInput } from './RepositoryInput';
 export { LastCommit } from './LastCommit';
 export { CharacterCount } from './CharacterCount';
 export { SelectedFileList } from './SelectedFileList';
-export { CopyToClipboardButton } from './CopyToClipboardButton';
 export { FileSearchAndFilter } from './FileSearchAndFilter';
 export { Button } from './Button';
