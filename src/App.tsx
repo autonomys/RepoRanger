@@ -14,8 +14,7 @@ import {
   NoRepositorySelected,
   FileList,
   LastCommit,
-  FileExtensionFilter,
-  FileSearchBar,
+  FileSearchAndFilter,
 } from './components';
 
 interface State {
@@ -231,6 +230,17 @@ function App() {
     );
   }, [files, selectedExtensions, selectedFiles, searchQuery]);
 
+  const handleClear = () => {
+    dispatch({
+      type: 'SET_SELECTED_FILE_EXTENSION',
+      payload: [],
+    });
+    dispatch({
+      type: 'SET_SEARCH_QUERY',
+      payload: '',
+    });
+  }
+
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-blue-500 text-white text-xl p-4 font-semibold">
@@ -256,20 +266,13 @@ function App() {
                   commit={selectedBranchItem.lastCommit}
                   repo={repo}
                 />
-                <FileExtensionFilter
+                <FileSearchAndFilter
+                  value={searchQuery}
+                  onChange={handleSearchQuery}
                   selectedExtensions={selectedExtensions}
                   onSelectExtension={handleSelectFileExtension}
                   extensions={fileExtensions}
-                  onClearExtensions={() =>
-                    dispatch({
-                      type: 'SET_SELECTED_FILE_EXTENSION',
-                      payload: [],
-                    })
-                  }
-                />
-                <FileSearchBar
-                  value={searchQuery}
-                  onChange={handleSearchQuery}
+                  onClear={handleClear}
                 />
               </>
             )}

@@ -35,7 +35,7 @@ export const SelectedFiles: React.FC<{
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4 gap-4">
+      <div className="flex justify-between items-start mb-4 gap-4">
         <CharacterCount
           totalCharCount={totalCharCount}
           charLimit={CHARACTER_LIMIT}
