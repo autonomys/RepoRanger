@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from 'react';
+import { useEffect, useReducer } from 'react';
 import { getSelectedFiles } from './utils';
 import { fetchAllFiles, fetchBranches } from './api';
 import { GitHubFile } from './types';
@@ -24,6 +24,7 @@ interface State {
     name: string;
     lastCommit: { hash: string; message: string; timestamp: string };
   }[];
+  selectedFileExtension: string;
 }
 
 export type Action =
@@ -40,7 +41,8 @@ export type Action =
         name: string;
         lastCommit: { hash: string; message: string; timestamp: string };
       }>;
-    };
+    }
+  | { type: 'SET_SELECTED_FILE_EXTENSION'; payload: string };
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -60,6 +62,11 @@ const reducer = (state: State, action: Action): State => {
       return { ...state, branches: action.payload };
     case 'RESET':
       return { ...initialState };
+    case 'SET_SELECTED_FILE_EXTENSION':
+      return {
+        ...state,
+        selectedFileExtension: action.payload,
+      };
     default:
       return state;
   }
@@ -73,10 +80,10 @@ const initialState: State = {
   isLoadingFileContents: false,
   selectedBranch: '',
   branches: [],
+  selectedFileExtension: '',
 };
 
 function App() {
-  const [selectedFileExtension, setSelectedFileExtension] = useState('');
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
     files,
@@ -86,6 +93,7 @@ function App() {
     selectedBranch,
     branches,
     isLoadingFileContents,
+    selectedFileExtension,
   } = state;
 
   useEffect(() => {
@@ -158,6 +166,13 @@ function App() {
     dispatch({ type: 'SET_SELECTED_BRANCH', payload: branch });
   };
 
+  const handleSelectFileExtension = (extension: string) => {
+    dispatch({
+      type: 'SET_SELECTED_FILE_EXTENSION',
+      payload: extension,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-blue-500 text-white text-xl p-4 font-semibold">
@@ -182,7 +197,7 @@ function App() {
             )}
             <FileExtensionFilter
               selectedFileExtension={selectedFileExtension}
-              onSelectExtension={setSelectedFileExtension}
+              onSelectExtension={handleSelectFileExtension}
             />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-1">
