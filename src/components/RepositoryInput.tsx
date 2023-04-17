@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Button } from './Button';
 
 interface RepositoryInputProps {
   onSubmit: (repo: string) => void;
@@ -34,7 +35,7 @@ export const RepositoryInput: React.FC<RepositoryInputProps> = ({
       <label htmlFor="repo-url" className="block mb-2">
         GitHub Repository URL:
       </label>
-      <div className="flex items-stretch">
+      <div className="flex items-stretch gap-4">
         <input
           type="text"
           id="repo-url"
@@ -44,19 +45,13 @@ export const RepositoryInput: React.FC<RepositoryInputProps> = ({
           placeholder="https://github.com/owner/repo"
           aria-label="GitHub Repository URL"
         />
-        <button
-          onClick={handleSubmit}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r"
-        >
+        <Button onClick={handleSubmit} className="rounded-r">
           Load Repository
-        </button>
+        </Button>
         {inputValue && (
-          <button
-            onClick={handleReset}
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ml-2"
-          >
+          <Button onClick={handleReset} variant="danger" className="ml-2">
             Reset
-          </button>
+          </Button>
         )}
       </div>
     </div>

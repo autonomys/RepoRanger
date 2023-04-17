@@ -1,4 +1,4 @@
-import React from 'react';
+import { Button } from './Button';
 
 interface FileExtensionFilterProps {
   selectedExtensions: string[];
@@ -40,14 +40,11 @@ export const FileExtensionFilter: React.FC<FileExtensionFilterProps> = ({
             </label>
           ))}
         </div>
-        <button
-          className={`ml-4 bg-red-500 text-white px-3 py-1 rounded ${
-            selectedExtensions.length ? 'visible' : 'invisible'
-          }`}
-          onClick={onClearExtensions}
-        >
-          Clear
-        </button>
+        {selectedExtensions.length ? (
+          <Button variant="danger" onClick={onClearExtensions}>
+            Clear
+          </Button>
+        ) : null}
       </div>
     </div>
   );
