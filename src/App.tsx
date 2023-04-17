@@ -51,7 +51,8 @@ export type Action =
     }
   | { type: 'SET_SELECTED_FILE_EXTENSION'; payload: string[] }
   | { type: 'SET_SEARCH_QUERY'; payload: string }
-  | { type: 'SET_FILE_EXTENSIONS'; payload: string[] };
+  | { type: 'SET_FILE_EXTENSIONS'; payload: string[] }
+  | { type: 'CLEAR_SELECTED_FILES' };
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -86,6 +87,8 @@ const reducer = (state: State, action: Action): State => {
         ...state,
         fileExtensions: action.payload,
       };
+    case 'CLEAR_SELECTED_FILES':
+      return { ...state, selectedFiles: new Set() };
     default:
       return state;
   }
