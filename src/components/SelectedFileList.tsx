@@ -12,23 +12,26 @@ export const SelectedFileList: React.FC<SelectedFileListProps> = ({
   selectedFileContents,
 }) => {
   return (
-    <pre className="bg-gray-100 p-4 rounded overflow-x-auto">
+    <div>
+      <h2 className="font-semibold mb-2">Selected Files:</h2>
       {selectedFiles.map((path, index) => {
         const file = files.find((f) => f.path === path);
         if (file) {
           const fileContent = selectedFileContents.get(path);
           return (
-            <div key={`${file.path}-${index}`}>
-              <h3 className="font-semibold">
+            <div key={`${file.path}-${index}`} className="mb-6">
+              <h3 className="font-semibold mb-2">
                 {index + 1}. file: {file.path}
               </h3>
-              <p>{fileContent}</p>
+              <pre className="bg-gray-100 p-4 rounded overflow-x-auto">
+                {fileContent}
+              </pre>
             </div>
           );
         } else {
           return null;
         }
       })}
-    </pre>
+    </div>
   );
 };

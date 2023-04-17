@@ -29,7 +29,7 @@ export const FileSearchAndFilter: React.FC<FileSearchAndFilterProps> = ({
 
   return (
     <div className="mb-4">
-      <div className='flex items-start gap-4'>
+      <div className='flex items-start gap-2'>
         <input
           type="text"
           value={value}
