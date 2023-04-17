@@ -1,5 +1,9 @@
 import { useEffect, useReducer, useMemo } from 'react';
-import { getSelectedFiles, sortFilesBySelection } from './utils';
+import {
+  getSelectedFiles,
+  sortFilesBySelection,
+  getFileExtensions,
+} from './utils';
 import { fetchAllFiles, fetchBranches } from './api';
 import { GitHubFile } from './types';
 import {
@@ -27,6 +31,7 @@ interface State {
   }[];
   selectedFileExtension: string;
   searchQuery: string;
+  fileExtensions: string[];
 }
 
 export type Action =
@@ -45,7 +50,8 @@ export type Action =
       }>;
     }
   | { type: 'SET_SELECTED_FILE_EXTENSION'; payload: string }
-  | { type: 'SET_SEARCH_QUERY'; payload: string };
+  | { type: 'SET_SEARCH_QUERY'; payload: string }
+  | { type: 'SET_FILE_EXTENSIONS'; payload: string[] };
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -75,6 +81,11 @@ const reducer = (state: State, action: Action): State => {
         ...state,
         searchQuery: action.payload,
       };
+    case 'SET_FILE_EXTENSIONS':
+      return {
+        ...state,
+        fileExtensions: action.payload,
+      };
     default:
       return state;
   }
@@ -90,6 +101,7 @@ const initialState: State = {
   branches: [],
   selectedFileExtension: '',
   searchQuery: '',
+  fileExtensions: [],
 };
 
 function App() {
@@ -104,6 +116,7 @@ function App() {
     isLoadingFileContents,
     selectedFileExtension,
     searchQuery,
+    fileExtensions,
   } = state;
 
   useEffect(() => {
@@ -118,9 +131,11 @@ function App() {
         dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: true });
         try {
           const files = await fetchAllFiles(repo, selectedBranch);
+          const fileExtensions = getFileExtensions(files);
           if (!isCancelled) {
             dispatch({ type: 'SET_FILES', payload: files });
             dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
+            dispatch({ type: 'SET_FILE_EXTENSIONS', payload: fileExtensions });
           }
         } catch (error) {
           console.error('Failed to fetch data', error);
@@ -234,6 +249,7 @@ function App() {
                 <FileExtensionFilter
                   selectedFileExtension={selectedFileExtension}
                   onSelectExtension={handleSelectFileExtension}
+                  extensions={fileExtensions}
                 />
                 <FileSearchBar
                   value={searchQuery}

@@ -3,11 +3,13 @@ import React from 'react';
 interface FileExtensionFilterProps {
   selectedFileExtension: string;
   onSelectExtension: (extension: string) => void;
+  extensions: string[];
 }
 
 export const FileExtensionFilter: React.FC<FileExtensionFilterProps> = ({
   selectedFileExtension,
   onSelectExtension,
+  extensions,
 }) => {
   const handleExtensionChange = (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -28,14 +30,11 @@ export const FileExtensionFilter: React.FC<FileExtensionFilterProps> = ({
         aria-label="Filter by file type"
       >
         <option value="">All files</option>
-        <option value=".js">JavaScript (.js)</option>
-        <option value=".ts">TypeScript (.ts)</option>
-        <option value=".jsx">React JavaScript (.jsx)</option>
-        <option value=".tsx">React TypeScript (.tsx)</option>
-        <option value=".json">JSON (.json)</option>
-        <option value=".md">Markdown (.md)</option>
-        <option value=".txt">Text (.txt)</option>
-        {/* Add more file types as needed */}
+        {extensions.map((extension) => (
+          <option key={extension} value={extension}>
+            {extension}
+          </option>
+        ))}
       </select>
     </div>
   );
