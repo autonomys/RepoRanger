@@ -4,12 +4,14 @@ interface FileExtensionFilterProps {
   selectedExtensions: string[];
   onSelectExtension: (extension: string) => void;
   extensions: string[];
+  onClearExtensions: () => void;
 }
 
 export const FileExtensionFilter: React.FC<FileExtensionFilterProps> = ({
   selectedExtensions,
   onSelectExtension,
   extensions,
+  onClearExtensions,
 }) => {
   const handleExtensionChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -22,12 +24,9 @@ export const FileExtensionFilter: React.FC<FileExtensionFilterProps> = ({
       <label htmlFor="file-extension" className="block mb-2">
         Filter by file type:
       </label>
-      <div className="flex flex-wrap">
+      <div className="flex flex-wrap items-center">
         {extensions.map((extension) => (
-          <label
-            key={extension}
-            className="inline-flex items-center mr-4 mb-2"
-          >
+          <label key={extension} className="inline-flex items-center mr-4">
             <input
               type="checkbox"
               className="form-checkbox"
@@ -39,6 +38,14 @@ export const FileExtensionFilter: React.FC<FileExtensionFilterProps> = ({
             <span className="ml-2">{extension}</span>
           </label>
         ))}
+        <button
+          className={`ml-4 bg-red-500 text-white px-3 py-1 rounded ${
+            selectedExtensions.length ? 'visible' : 'invisible'
+          }`}
+          onClick={onClearExtensions}
+        >
+          Clear
+        </button>
       </div>
     </div>
   );

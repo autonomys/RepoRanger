@@ -203,7 +203,7 @@ function App() {
         payload: [...selectedExtensions, extension],
       });
     }
-  };  
+  };
 
   const handleSearchQuery = (extension: string) => {
     dispatch({
@@ -214,19 +214,19 @@ function App() {
 
   const displayedFiles = useMemo(() => {
     let filesToDisplay = files;
-  
+
     if (selectedExtensions.length > 0) {
       filesToDisplay = files.filter((file) =>
         selectedExtensions.some((ext) => file.path.endsWith(`.${ext}`))
       );
     }
-  
+
     return sortFilesBySelection(filesToDisplay, selectedFiles).filter((file) =>
       file.path
         .toLowerCase()
         .includes(searchQuery ? searchQuery.toLowerCase() : '')
     );
-  }, [files, selectedExtensions, selectedFiles, searchQuery]);  
+  }, [files, selectedExtensions, selectedFiles, searchQuery]);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -257,6 +257,12 @@ function App() {
                   selectedExtensions={selectedExtensions}
                   onSelectExtension={handleSelectFileExtension}
                   extensions={fileExtensions}
+                  onClearExtensions={() =>
+                    dispatch({
+                      type: 'SET_SELECTED_FILE_EXTENSION',
+                      payload: [],
+                    })
+                  }
                 />
                 <FileSearchBar
                   value={searchQuery}
