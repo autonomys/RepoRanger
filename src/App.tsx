@@ -1,5 +1,5 @@
-import { useEffect, useReducer } from 'react';
-import { getSelectedFiles } from './utils';
+import { useEffect, useReducer, useMemo } from 'react';
+import { getSelectedFiles, sortFilesBySelection } from './utils';
 import { fetchAllFiles, fetchBranches } from './api';
 import { GitHubFile } from './types';
 import {
@@ -11,6 +11,7 @@ import {
   FileList,
   LastCommit,
   FileExtensionFilter,
+  FileSearchBar,
 } from './components';
 
 interface State {
@@ -25,6 +26,7 @@ interface State {
     lastCommit: { hash: string; message: string; timestamp: string };
   }[];
   selectedFileExtension: string;
+  searchQuery: string;
 }
 
 export type Action =
@@ -42,7 +44,8 @@ export type Action =
         lastCommit: { hash: string; message: string; timestamp: string };
       }>;
     }
-  | { type: 'SET_SELECTED_FILE_EXTENSION'; payload: string };
+  | { type: 'SET_SELECTED_FILE_EXTENSION'; payload: string }
+  | { type: 'SET_SEARCH_QUERY'; payload: string };
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -67,6 +70,11 @@ const reducer = (state: State, action: Action): State => {
         ...state,
         selectedFileExtension: action.payload,
       };
+    case 'SET_SEARCH_QUERY':
+      return {
+        ...state,
+        searchQuery: action.payload,
+      };
     default:
       return state;
   }
@@ -81,6 +89,7 @@ const initialState: State = {
   selectedBranch: '',
   branches: [],
   selectedFileExtension: '',
+  searchQuery: '',
 };
 
 function App() {
@@ -94,6 +103,7 @@ function App() {
     branches,
     isLoadingFileContents,
     selectedFileExtension,
+    searchQuery,
   } = state;
 
   useEffect(() => {
@@ -173,6 +183,29 @@ function App() {
     });
   };
 
+  const handleSearchQuery = (extension: string) => {
+    dispatch({
+      type: 'SET_SEARCH_QUERY',
+      payload: extension,
+    });
+  };
+
+  const displayedFiles = useMemo(() => {
+    let filesToDisplay = files;
+
+    if (selectedFileExtension) {
+      filesToDisplay = files.filter((file) =>
+        file.path.endsWith(selectedFileExtension)
+      );
+    }
+
+    return sortFilesBySelection(filesToDisplay, selectedFiles).filter((file) =>
+      file.path
+        .toLowerCase()
+        .includes(searchQuery ? searchQuery.toLowerCase() : '')
+    );
+  }, [files, selectedFileExtension, selectedFiles, searchQuery]);
+
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-blue-500 text-white text-xl p-4 font-semibold">
@@ -193,22 +226,30 @@ function App() {
               />
             )}
             {selectedBranchItem && (
-              <LastCommit commit={selectedBranchItem.lastCommit} repo={repo} />
+              <>
+                <LastCommit
+                  commit={selectedBranchItem.lastCommit}
+                  repo={repo}
+                />
+                <FileExtensionFilter
+                  selectedFileExtension={selectedFileExtension}
+                  onSelectExtension={handleSelectFileExtension}
+                />
+                <FileSearchBar
+                  value={searchQuery}
+                  onChange={handleSearchQuery}
+                />
+              </>
             )}
-            <FileExtensionFilter
-              selectedFileExtension={selectedFileExtension}
-              onSelectExtension={handleSelectFileExtension}
-            />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-1">
                 {isLoadingRepoFiles ? (
                   <Loading />
                 ) : repo ? (
                   <FileList
-                    files={files}
+                    files={displayedFiles}
                     selectedFiles={selectedFiles}
                     handleSelection={handleSelection}
-                    selectedFileExtension={selectedFileExtension}
                   />
                 ) : (
                   <NoRepositorySelected />
