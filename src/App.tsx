@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { getSelectedFiles } from './utils';
 import { fetchAllFiles, fetchBranches } from './api';
 import { GitHubFile } from './types';
@@ -10,6 +10,7 @@ import {
   NoRepositorySelected,
   FileList,
   LastCommit,
+  FileExtensionFilter,
 } from './components';
 
 interface State {
@@ -75,6 +76,7 @@ const initialState: State = {
 };
 
 function App() {
+  const [selectedFileExtension, setSelectedFileExtension] = useState('');
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
     files,
@@ -178,6 +180,10 @@ function App() {
             {selectedBranchItem && (
               <LastCommit commit={selectedBranchItem.lastCommit} repo={repo} />
             )}
+            <FileExtensionFilter
+              selectedFileExtension={selectedFileExtension}
+              onSelectExtension={setSelectedFileExtension}
+            />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-1">
                 {isLoadingRepoFiles ? (
@@ -187,6 +193,7 @@ function App() {
                     files={files}
                     selectedFiles={selectedFiles}
                     handleSelection={handleSelection}
+                    selectedFileExtension={selectedFileExtension}
                   />
                 ) : (
                   <NoRepositorySelected />
