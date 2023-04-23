@@ -15,7 +15,7 @@ interface State {
 // test
 
 export type Action =
-  | { type: 'RESET' }
+  | { type: 'RESET_REPO' }
   | { type: 'SET_FILES'; payload: GitHubFile[] }
   | { type: 'SET_COLLAPSED_FILES'; payload: Set<string> }
   | { type: 'SET_REPO'; payload: string }
@@ -26,7 +26,7 @@ export type Action =
     type: 'SET_BRANCHES';
     payload: Array<GithubBranch>;
   }
-  | { type: 'SET_SELECTED_FILE_EXTENSION'; payload: string[] }
+  | { type: 'SET_SELECTED_FILE_EXTENSIONS'; payload: string[] }
   | { type: 'SET_SEARCH_QUERY'; payload: string }
   | { type: 'SET_FILE_EXTENSIONS'; payload: string[] }
   | { type: 'TOGGLE_SELECT_FILE'; payload: string }
@@ -73,9 +73,9 @@ export const reducer = (state: State, action: Action): State => {
       return { ...state, selectedBranch: action.payload };
     case 'SET_BRANCHES':
       return { ...state, branches: action.payload };
-    case 'RESET':
+    case 'RESET_REPO':
       return { ...initialState };
-    case 'SET_SELECTED_FILE_EXTENSION':
+    case 'SET_SELECTED_FILE_EXTENSIONS':
       return {
         ...state,
         selectedExtensions: action.payload,

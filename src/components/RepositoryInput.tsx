@@ -2,13 +2,13 @@ import { useCallback, useState } from 'react';
 import { Button } from './Button';
 
 interface RepositoryInputProps {
-  onSubmit: (repo: string) => void;
-  onReset: () => void;
+  fetchRepoBranches: (repo: string) => void;
+  resetRepo: () => void;
 }
 
 export const RepositoryInput: React.FC<RepositoryInputProps> = ({
-  onSubmit,
-  onReset,
+  fetchRepoBranches,
+  resetRepo,
 }) => {
   const [inputValue, setInputValue] = useState('');
 
@@ -19,16 +19,16 @@ export const RepositoryInput: React.FC<RepositoryInputProps> = ({
   const handleSubmit = useCallback(() => {
     const repoMatch = inputValue.match(/github.com\/(.+\/.+)(\/|$)/i);
     if (repoMatch && repoMatch[1]) {
-      onSubmit(repoMatch[1]);
+      fetchRepoBranches(repoMatch[1]);
     } else {
       alert('Invalid GitHub repository URL.');
     }
-  }, [inputValue, onSubmit]);
+  }, [inputValue, fetchRepoBranches]);
 
-  const handleReset = useCallback(() => {
+  const handleResetClick = useCallback(() => {
     setInputValue('');
-    onReset();
-  }, [onReset]);
+    resetRepo();
+  }, [resetRepo]);
 
   return (
     <div className="mb-4">
@@ -49,7 +49,7 @@ export const RepositoryInput: React.FC<RepositoryInputProps> = ({
           Load
         </Button>
         {inputValue && (
-          <Button onClick={handleReset} variant="danger" className="ml-2">
+          <Button onClick={handleResetClick} variant="danger" className="ml-2">
             Reset
           </Button>
         )}

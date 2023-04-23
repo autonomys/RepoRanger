@@ -7,23 +7,25 @@ import { fetchFileContent } from '../../api';
 
 const CHARACTER_LIMIT = 15000;
 
-export const Result: React.FC<{
+interface ResultProps {
   files: GitHubFile[];
   repo: string;
   branch: string;
   isLoadingFileContents: boolean;
-  handleClearFiles: () => void;
+  clearFiles: () => void;
   setContentsLoading: (isLoading: boolean) => void;
-  handleFileCollapse: (path: string) => void;
-}> = memo(
+  toggleContentCollapse: (path: string) => void;
+}
+
+export const Result: React.FC<ResultProps> = memo(
   ({
     files,
     repo,
     branch,
     isLoadingFileContents,
-    handleClearFiles,
+    clearFiles,
     setContentsLoading,
-    handleFileCollapse,
+    toggleContentCollapse,
   }) => {
     const [selectedFileContents, setSelectedFileContents] = useState<
       Map<string, string>
@@ -109,7 +111,7 @@ export const Result: React.FC<{
             <>
               <Button onClick={handleCopy}>Copy</Button>
               <Button onClick={handleDownload}>Download</Button>
-              <Button variant="danger" onClick={handleClearFiles}>
+              <Button variant="danger" onClick={clearFiles}>
                 Clear
               </Button>
             </>
@@ -121,7 +123,7 @@ export const Result: React.FC<{
           <Contents
             selectedFiles={files}
             selectedFileContents={selectedFileContents}
-            handleFileCollapse={handleFileCollapse}
+            handleFileCollapse={toggleContentCollapse}
           />
         ) : (
           <p className="text-gray-600">

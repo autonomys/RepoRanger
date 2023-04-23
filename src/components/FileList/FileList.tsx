@@ -4,11 +4,11 @@ import { GitHubFile } from '../../types';
 
 interface FileListProps {
   files: GitHubFile[];
-  handleSelection: (path: string) => void;
+  toggleFileSelect: (path: string) => void;
 }
 
 export const FileList: React.FC<FileListProps> = memo(
-  ({ files, handleSelection }) => {
+  ({ files, toggleFileSelect }) => {
     return (
       <div className="bg-white shadow p-6 rounded min-h-full">
         <h2 className="font-semibold mb-4">Files:</h2>
@@ -17,7 +17,7 @@ export const FileList: React.FC<FileListProps> = memo(
             <FileItem
               key={`${file.path}-${index}`}
               file={file}
-              handleSelection={handleSelection}
+              toggleFileSelect={toggleFileSelect}
             />
           ))}
         </ul>

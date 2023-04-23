@@ -1,35 +1,34 @@
+import { ChangeEvent } from 'react';
 import { Button } from './Button';
 
 interface FileFilterProps {
   selectedExtensions: string[];
-  onSelectExtension: (extension: string) => void;
+  selectFileExtensions: (extension: string) => void;
   extensions: string[];
-  onClear: () => void;
+  clearFileFilters: () => void;
   value: string;
-  onChange: (value: string) => void;
+  setSearchQuery: (value: string) => void;
 }
 
 export const FileFilter: React.FC<FileFilterProps> = ({
   selectedExtensions,
-  onSelectExtension,
+  selectFileExtensions,
   extensions,
-  onClear,
+  clearFileFilters,
   value,
-  onChange,
+  setSearchQuery,
 }) => {
-  const handleExtensionChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    onSelectExtension(event.target.value);
+  const handleExtensionChange = (event: ChangeEvent<HTMLInputElement>) => {
+    selectFileExtensions(event.target.value);
   };
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(event.target.value);
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
   };
 
   return (
     <div className="mb-4">
-      <div className='flex items-start gap-2'>
+      <div className="flex items-start gap-2">
         <input
           type="text"
           value={value}
@@ -39,7 +38,7 @@ export const FileFilter: React.FC<FileFilterProps> = ({
           aria-label="Search files"
         />
         {selectedExtensions.length || value ? (
-          <Button variant="danger" onClick={onClear}>
+          <Button variant="danger" onClick={clearFileFilters}>
             Clear
           </Button>
         ) : null}
