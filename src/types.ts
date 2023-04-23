@@ -5,3 +5,8 @@ export interface GitHubFile {
   isSelected: boolean;
   isCollapsed: boolean;
 }
+
+export interface GithubBranch {
+  name: string;
+  lastCommit: { hash: string; message: string; timestamp: string };
+}

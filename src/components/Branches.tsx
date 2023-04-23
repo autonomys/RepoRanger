@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, ChangeEvent } from 'react';
 
 interface BranchesProps {
   branches: {
@@ -6,11 +6,14 @@ interface BranchesProps {
     lastCommit: { hash: string; message: string; timestamp: string };
   }[];
   selectedBranch: string;
-  handleBranchSelect: (branch: string) => void;
+  selectBranch: (branch: string) => void;
 }
 
 export const Branches: React.FC<BranchesProps> = memo(
-  ({ branches, selectedBranch, handleBranchSelect }) => {
+  ({ branches, selectedBranch, selectBranch }) => {
+    function handleBranchChange({ target }: ChangeEvent<HTMLInputElement>) {
+      selectBranch(target.value);
+    }
     return (
       <div className="mb-4">
         <span className="block mb-2 text-sm font-medium text-gray-700">
@@ -27,7 +30,7 @@ export const Branches: React.FC<BranchesProps> = memo(
                 name="branch"
                 value={branch.name}
                 checked={selectedBranch === branch.name}
-                onChange={(e) => handleBranchSelect(e.target.value)}
+                onChange={handleBranchChange}
                 className="text-blue-500 mr-2"
               />
               {branch.name}

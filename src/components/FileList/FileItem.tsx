@@ -2,12 +2,12 @@ import { GitHubFile } from '../../types';
 
 interface FileItemProps {
   file: GitHubFile;
-  handleSelection: (path: string) => void;
+  toggleFileSelect: (path: string) => void;
 }
 
 export const FileItem: React.FC<FileItemProps> = ({
   file,
-  handleSelection,
+  toggleFileSelect,
 }) => {
   return (
     <li className="pl-2 py-1">
@@ -15,7 +15,7 @@ export const FileItem: React.FC<FileItemProps> = ({
         <input
           type="checkbox"
           checked={file.isSelected}
-          onChange={() => handleSelection(file.path)}
+          onChange={() => toggleFileSelect(file.path)}
         />
         <span
           className={`truncate w-full ${file.isSelected ? 'font-semibold' : ''}`}

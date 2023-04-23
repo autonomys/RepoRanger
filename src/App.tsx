@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useMemo, useCallback } from 'react';
+import { useEffect, useReducer, useMemo, useCallback, useState } from 'react';
 import { sortFilesBySelection, getFileExtensions } from './utils';
 import { fetchAllFiles, fetchBranches } from './api';
 import {
@@ -13,8 +13,12 @@ import {
   Header,
 } from './components';
 import { reducer, initialState } from './stateReducer';
+import { GithubBranch } from './types';
 
 function App() {
+  const [lastSuccessfulFetchedData, setLastSuccessfulFetchedData] = useState<
+    GithubBranch[] | null
+  >(null);
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
     files,
@@ -28,19 +32,56 @@ function App() {
     fileExtensions,
   } = state;
 
+  const fetchRepoBranches = useCallback(
+    async (repo: string) => {
+      try {
+        const branches = await fetchBranches(repo).then((branches) =>
+          branches.sort((a, b) => {
+            // Sorting branches so that 'main' or 'master' always comes first
+            if (a.name === 'main' || a.name === 'master') return -1;
+            if (b.name === 'main' || b.name === 'master') return 1;
+            return a.name.localeCompare(b.name);
+          })
+        );
+
+        if (
+          JSON.stringify(lastSuccessfulFetchedData) !== JSON.stringify(branches)
+        ) {
+          dispatch({ type: 'SET_BRANCHES', payload: branches });
+          dispatch({
+            type: 'SET_SELECTED_BRANCH',
+            payload: selectedBranch ? selectedBranch : branches[0].name,
+          });
+          dispatch({ type: 'SET_REPO', payload: repo });
+          setLastSuccessfulFetchedData(branches);
+        }
+      } catch (error) {
+        alert('Failed to fetch repository branches');
+      }
+    },
+    [lastSuccessfulFetchedData, selectedBranch]
+  );
+
   useEffect(() => {
-    dispatch({ type: 'SET_SELECTED_FILES', payload: new Set() });
-  }, [repo]);
+    if (repo) {
+      const interval = setInterval(async () => {
+        await fetchRepoBranches(repo);
+      }, 6000);
+
+      return () => clearInterval(interval);
+    }
+  }, [fetchRepoBranches, repo]);
 
   useEffect(() => {
     let isCancelled = false;
 
-    const fetchData = async () => {
+    const fetchBranchFiles = async () => {
       if (repo) {
         dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: true });
         try {
           const files = await fetchAllFiles(repo, selectedBranch);
           const fileExtensions = getFileExtensions(files);
+
           if (!isCancelled) {
             dispatch({ type: 'SET_FILES', payload: files });
             dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
@@ -53,76 +94,54 @@ function App() {
       }
     };
 
-    fetchData();
+    fetchBranchFiles();
 
     return () => {
       isCancelled = true;
       dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
     };
-  }, [repo, selectedBranch]);
+  }, [repo, selectedBranch, lastSuccessfulFetchedData]);
 
-  const handleRepoSubmit = useCallback(async (repo: string) => {
-    try {
-      const branches = await fetchBranches(repo).then((branches) =>
-        branches.sort((a, b) => {
-          // Sorting branches so that 'main' or 'master' always comes first
-          if (a.name === 'main' || a.name === 'master') return -1;
-          if (b.name === 'main' || b.name === 'master') return 1;
-          return a.name.localeCompare(b.name);
-        })
-      );
-
-      dispatch({ type: 'SET_BRANCHES', payload: branches });
-      dispatch({ type: 'SET_SELECTED_BRANCH', payload: branches[0].name });
-      dispatch({ type: 'SET_REPO', payload: repo });
-    } catch (error) {
-      alert('Failed to fetch repository branches');
-    }
-  }, []);
-
-  const handleSelection = useCallback((path: string) => {
+  const toggleFileSelect = useCallback((path: string) => {
     dispatch({ type: 'TOGGLE_SELECT_FILE', payload: path });
   }, []);
 
-  const handleFileCollapse = useCallback((path: string) => {
+  const toggleContentCollapse = useCallback((path: string) => {
     dispatch({ type: 'TOGGLE_CONTENT_COLLAPSE', payload: path });
   }, []);
 
-  const handleReset = useCallback(() => {
-    dispatch({ type: 'RESET' });
+  const resetRepo = useCallback(() => {
+    dispatch({ type: 'RESET_REPO' });
   }, []);
 
-  const handleBranchSelect = useCallback((branch: string) => {
+  const selectBranch = useCallback((branch: string) => {
     dispatch({ type: 'SET_SELECTED_BRANCH', payload: branch });
   }, []);
 
-  const handleSelectFileExtension = useCallback(
+  const selectFileExtensions = useCallback(
     (extension: string) => {
-      if (selectedExtensions.includes(extension)) {
-        dispatch({
-          type: 'SET_SELECTED_FILE_EXTENSION',
-          payload: selectedExtensions.filter((ext) => ext !== extension),
-        });
-      } else {
-        dispatch({
-          type: 'SET_SELECTED_FILE_EXTENSION',
-          payload: [...selectedExtensions, extension],
-        });
-      }
+      const payload = selectedExtensions.includes(extension)
+        ? selectedExtensions.filter((ext) => ext !== extension)
+        : [...selectedExtensions, extension];
+
+      dispatch({
+        type: 'SET_SELECTED_FILE_EXTENSIONS',
+        payload,
+      });
     },
     [selectedExtensions]
   );
 
-  const handleSearchQuery = useCallback((extension: string) => {
+  const setSearchQuery = useCallback((extension: string) => {
     dispatch({
       type: 'SET_SEARCH_QUERY',
       payload: extension,
     });
   }, []);
 
-  const handleClear = useCallback(() => {
+  const clearFileFilters = useCallback(() => {
     dispatch({
-      type: 'SET_SELECTED_FILE_EXTENSION',
+      type: 'SET_SELECTED_FILE_EXTENSIONS',
       payload: [],
     });
     dispatch({
@@ -131,7 +150,7 @@ function App() {
     });
   }, []);
 
-  const handleClearFiles = useCallback(() => {
+  const clearFiles = useCallback(() => {
     dispatch({ type: 'CLEAR_SELECTED_FILES' });
   }, []);
 
@@ -170,14 +189,14 @@ function App() {
         <div className="container mx-auto">
           <div>
             <RepositoryInput
-              onSubmit={handleRepoSubmit}
-              onReset={handleReset}
+              fetchRepoBranches={fetchRepoBranches}
+              resetRepo={resetRepo}
             />
             {repo && (
               <Branches
                 branches={branches}
                 selectedBranch={selectedBranch}
-                handleBranchSelect={handleBranchSelect}
+                selectBranch={selectBranch}
               />
             )}
             {selectedBranchItem && (
@@ -188,11 +207,11 @@ function App() {
                 />
                 <FileFilter
                   value={searchQuery}
-                  onChange={handleSearchQuery}
+                  setSearchQuery={setSearchQuery}
                   selectedExtensions={selectedExtensions}
-                  onSelectExtension={handleSelectFileExtension}
+                  selectFileExtensions={selectFileExtensions}
                   extensions={fileExtensions}
-                  onClear={handleClear}
+                  clearFileFilters={clearFileFilters}
                 />
               </>
             )}
@@ -203,7 +222,7 @@ function App() {
                 ) : repo ? (
                   <FileList
                     files={displayedFiles}
-                    handleSelection={handleSelection}
+                    toggleFileSelect={toggleFileSelect}
                   />
                 ) : (
                   <NoRepositorySelected />
@@ -217,9 +236,9 @@ function App() {
                       repo={repo}
                       branch={selectedBranch}
                       isLoadingFileContents={isLoadingFileContents}
-                      handleClearFiles={handleClearFiles}
+                      clearFiles={clearFiles}
                       setContentsLoading={setContentsLoading}
-                      handleFileCollapse={handleFileCollapse}
+                      toggleContentCollapse={toggleContentCollapse}
                     />
                   </div>
                 </div>

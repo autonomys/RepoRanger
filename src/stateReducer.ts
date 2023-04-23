@@ -1,4 +1,4 @@
-import { GitHubFile } from './types';
+import { GitHubFile, GithubBranch } from './types';
 
 interface State {
   files: GitHubFile[];
@@ -6,19 +6,15 @@ interface State {
   isLoadingRepoFiles: boolean;
   isLoadingFileContents: boolean;
   selectedBranch: string;
-  branches: {
-    name: string;
-    lastCommit: { hash: string; message: string; timestamp: string };
-  }[];
+  branches: GithubBranch[];
   searchQuery: string;
   fileExtensions: string[];
   selectedExtensions: string[];
 }
 
 export type Action =
-  | { type: 'RESET' }
+  | { type: 'RESET_REPO' }
   | { type: 'SET_FILES'; payload: GitHubFile[] }
-  | { type: 'SET_SELECTED_FILES'; payload: Set<string> }
   | { type: 'SET_COLLAPSED_FILES'; payload: Set<string> }
   | { type: 'SET_REPO'; payload: string }
   | { type: 'SET_IS_LOADING_REPO_FILES'; payload: boolean }
@@ -26,12 +22,9 @@ export type Action =
   | { type: 'SET_SELECTED_BRANCH'; payload: string }
   | {
     type: 'SET_BRANCHES';
-    payload: Array<{
-      name: string;
-      lastCommit: { hash: string; message: string; timestamp: string };
-    }>;
+    payload: Array<GithubBranch>;
   }
-  | { type: 'SET_SELECTED_FILE_EXTENSION'; payload: string[] }
+  | { type: 'SET_SELECTED_FILE_EXTENSIONS'; payload: string[] }
   | { type: 'SET_SEARCH_QUERY'; payload: string }
   | { type: 'SET_FILE_EXTENSIONS'; payload: string[] }
   | { type: 'TOGGLE_SELECT_FILE'; payload: string }
@@ -78,9 +71,9 @@ export const reducer = (state: State, action: Action): State => {
       return { ...state, selectedBranch: action.payload };
     case 'SET_BRANCHES':
       return { ...state, branches: action.payload };
-    case 'RESET':
+    case 'RESET_REPO':
       return { ...initialState };
-    case 'SET_SELECTED_FILE_EXTENSION':
+    case 'SET_SELECTED_FILE_EXTENSIONS':
       return {
         ...state,
         selectedExtensions: action.payload,
