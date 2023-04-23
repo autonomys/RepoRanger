@@ -15,6 +15,8 @@ interface State {
   selectedExtensions: string[];
 }
 
+// test
+
 export type Action =
   | { type: 'RESET' }
   | { type: 'SET_FILES'; payload: GitHubFile[] }
