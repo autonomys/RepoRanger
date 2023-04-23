@@ -1,10 +1,12 @@
-import { GitHubFile } from '../types';
-import { CharacterCount, SelectedFileList, Loading, Button } from './';
-import { useFileContents } from '../hooks/useFileContents';
+import { GitHubFile } from '../../types';
+import { Loading, Button } from '..';
+import { CharacterCount } from './CharacterCount';
+import { Contents } from './Contents';
+import { useFileContents } from '../../hooks/useFileContents';
 
 const CHARACTER_LIMIT = 15000;
 
-export const SelectedFiles: React.FC<{
+export const Result: React.FC<{
   selectedFiles: Set<string>;
   files: GitHubFile[];
   repo: string;
@@ -25,7 +27,7 @@ export const SelectedFiles: React.FC<{
     selectedFiles,
     repo,
     branch,
-    setContentsLoading,
+    setContentsLoading
   );
 
   const handleDownload = () => {
@@ -57,10 +59,7 @@ export const SelectedFiles: React.FC<{
           <>
             <Button onClick={handleCopy}>Copy</Button>
             <Button onClick={handleDownload}>Download</Button>
-            <Button
-              variant="danger"
-              onClick={handleClearFiles}
-            >
+            <Button variant="danger" onClick={handleClearFiles}>
               Clear
             </Button>
           </>
@@ -69,7 +68,7 @@ export const SelectedFiles: React.FC<{
       {isLoadingFileContents ? (
         <Loading />
       ) : selectedFiles.size > 0 ? (
-        <SelectedFileList
+        <Contents
           selectedFiles={memoizedSelectedFiles}
           files={files}
           selectedFileContents={contents}

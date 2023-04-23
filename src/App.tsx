@@ -8,7 +8,7 @@ import { fetchAllFiles, fetchBranches } from './api';
 import { GitHubFile } from './types';
 import {
   RepositoryInput,
-  SelectedFiles,
+  Result,
   BranchSelector,
   Loading,
   NoRepositorySelected,
@@ -300,7 +300,7 @@ function App() {
               {repo && (
                 <div className="md:col-span-2 min-h-[50vh]">
                   <div className="bg-white shadow p-6 rounded min-h-full">
-                    <SelectedFiles
+                    <Result
                       selectedFiles={selectedFiles}
                       files={files}
                       repo={repo}

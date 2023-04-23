@@ -1,12 +1,12 @@
-import { GitHubFile } from '../types';
+import { GitHubFile } from '../../types';
 
-interface SelectedFileListProps {
+interface ContentsProps {
   selectedFiles: string[];
   files: GitHubFile[];
   selectedFileContents: Map<string, string>;
 }
 
-export const SelectedFileList: React.FC<SelectedFileListProps> = ({
+export const Contents: React.FC<ContentsProps> = ({
   selectedFiles,
   files,
   selectedFileContents,
