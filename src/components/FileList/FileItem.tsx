@@ -1,12 +1,12 @@
-import { GitHubFile } from '../types';
+import { GitHubFile } from '../../types';
 
-interface FileTreeProps {
+interface FileItemProps {
   file: GitHubFile;
   selectedFiles: Set<string>;
   onSelection: (file: GitHubFile) => void;
 }
 
-export const FileTree: React.FC<FileTreeProps> = ({
+export const FileItem: React.FC<FileItemProps> = ({
   file,
   selectedFiles,
   onSelection,

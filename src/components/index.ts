@@ -1,8 +1,7 @@
-export { FileTree } from './FileTree';
 export { BranchSelector } from './BranchSelector';
 export { Loading } from './Loading';
 export { NoRepositorySelected } from './NoRepositorySelected';
-export { FileList } from './FileList'; 
+export { FileList } from './FileList/FileList'; 
 export { RepositoryInput } from './RepositoryInput';
 export { LastCommit } from './LastCommit';
 export { FileFilter } from './FileFilter';
