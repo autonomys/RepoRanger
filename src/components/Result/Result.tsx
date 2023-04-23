@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { GitHubFile } from '../../types';
 import { Loading, Button } from '..';
 import { CharacterCount } from './CharacterCount';
@@ -14,7 +15,7 @@ export const Result: React.FC<{
   isLoadingFileContents: boolean;
   handleClearFiles: () => void;
   setContentsLoading: (isLoading: boolean) => void;
-}> = ({
+}> = memo(({
   selectedFiles,
   files,
   repo,
@@ -80,4 +81,4 @@ export const Result: React.FC<{
       )}
     </div>
   );
-};
+});
