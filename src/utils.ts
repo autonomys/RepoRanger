@@ -1,17 +1,5 @@
 import { GitHubFile } from './types';
 
-export const getSelectedFiles = (prevSelectedFiles: Set<string>, file: GitHubFile) => {
-  const newSelectedFiles = new Set(prevSelectedFiles);
-
-  if (newSelectedFiles.has(file.path)) {
-    newSelectedFiles.delete(file.path);
-  } else {
-    newSelectedFiles.add(file.path);
-  }
-
-  return newSelectedFiles;
-};
-
 export const sortFilesBySelection = (
   files: GitHubFile[],
   selectedFiles: Set<string>

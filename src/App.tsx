@@ -1,11 +1,6 @@
 import { useEffect, useReducer, useMemo, useCallback } from 'react';
-import {
-  getSelectedFiles,
-  sortFilesBySelection,
-  getFileExtensions,
-} from './utils';
+import { sortFilesBySelection, getFileExtensions } from './utils';
 import { fetchAllFiles, fetchBranches } from './api';
-import { GitHubFile } from './types';
 import {
   RepositoryInput,
   Result,
@@ -24,6 +19,7 @@ function App() {
   const {
     files,
     selectedFiles,
+    collapsedFiles,
     repo,
     isLoadingRepoFiles,
     selectedBranch,
@@ -87,14 +83,35 @@ function App() {
   }, []);
 
   const handleSelection = useCallback(
-    (file: GitHubFile) => {
-      const files = getSelectedFiles(selectedFiles, file);
+    (path: string) => {
+      const newSelectedFiles = new Set(selectedFiles);
+
+      if (newSelectedFiles.has(path)) {
+        newSelectedFiles.delete(path);
+        collapsedFiles.delete(path);
+      } else {
+        newSelectedFiles.add(path);
+      }
       dispatch({
         type: 'SET_SELECTED_FILES',
-        payload: files,
+        payload: newSelectedFiles,
       });
     },
-    [selectedFiles]
+    [selectedFiles, collapsedFiles]
+  );
+
+  const handleFileCollapse = useCallback(
+    (path: string) => {
+      const newCollapsedFiles = new Set(collapsedFiles);
+
+      if (newCollapsedFiles.has(path)) {
+        newCollapsedFiles.delete(path);
+      } else {
+        newCollapsedFiles.add(path);
+      }
+      dispatch({ type: 'SET_COLLAPSED_FILES', payload: newCollapsedFiles });
+    },
+    [collapsedFiles]
   );
 
   const handleReset = useCallback(() => {
@@ -226,6 +243,8 @@ function App() {
                       isLoadingFileContents={isLoadingFileContents}
                       handleClearFiles={handleClearFiles}
                       setContentsLoading={setContentsLoading}
+                      handleFileCollapse={handleFileCollapse}
+                      collapsedFiles={collapsedFiles}
                     />
                   </div>
                 </div>

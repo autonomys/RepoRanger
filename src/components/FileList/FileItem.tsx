@@ -3,13 +3,13 @@ import { GitHubFile } from '../../types';
 interface FileItemProps {
   file: GitHubFile;
   selectedFiles: Set<string>;
-  onSelection: (file: GitHubFile) => void;
+  handleSelection: (path: string) => void;
 }
 
 export const FileItem: React.FC<FileItemProps> = ({
   file,
   selectedFiles,
-  onSelection,
+  handleSelection,
 }) => {
   const isSelected = selectedFiles.has(file.path);
   return (
@@ -18,7 +18,7 @@ export const FileItem: React.FC<FileItemProps> = ({
         <input
           type="checkbox"
           checked={isSelected}
-          onChange={() => onSelection(file)}
+          onChange={() => handleSelection(file.path)}
           className="form-checkbox text-blue-500"
         />
         <span

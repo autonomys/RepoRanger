@@ -15,6 +15,8 @@ export const Result: React.FC<{
   isLoadingFileContents: boolean;
   handleClearFiles: () => void;
   setContentsLoading: (isLoading: boolean) => void;
+  handleFileCollapse: (path: string) => void;
+  collapsedFiles: Set<string>;
 }> = memo(({
   selectedFiles,
   files,
@@ -23,6 +25,8 @@ export const Result: React.FC<{
   isLoadingFileContents,
   handleClearFiles,
   setContentsLoading,
+  collapsedFiles,
+  handleFileCollapse,
 }) => {
   const { contents, totalCharCount, memoizedSelectedFiles } = useFileContents(
     selectedFiles,
@@ -73,6 +77,8 @@ export const Result: React.FC<{
           selectedFiles={memoizedSelectedFiles}
           files={files}
           selectedFileContents={contents}
+          collapsedFiles={collapsedFiles}
+          handleFileCollapse={handleFileCollapse}
         />
       ) : (
         <p className="text-gray-600">

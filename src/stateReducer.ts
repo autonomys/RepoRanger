@@ -3,6 +3,7 @@ import { GitHubFile } from './types';
 interface State {
   files: GitHubFile[];
   selectedFiles: Set<string>;
+  collapsedFiles: Set<string>;
   repo: string;
   isLoadingRepoFiles: boolean;
   isLoadingFileContents: boolean;
@@ -20,17 +21,18 @@ export type Action =
   | { type: 'RESET' }
   | { type: 'SET_FILES'; payload: GitHubFile[] }
   | { type: 'SET_SELECTED_FILES'; payload: Set<string> }
+  | { type: 'SET_COLLAPSED_FILES'; payload: Set<string> }
   | { type: 'SET_REPO'; payload: string }
   | { type: 'SET_IS_LOADING_REPO_FILES'; payload: boolean }
   | { type: 'SET_IS_LOADING_FILE_CONTENTS'; payload: boolean }
   | { type: 'SET_SELECTED_BRANCH'; payload: string }
   | {
-      type: 'SET_BRANCHES';
-      payload: Array<{
-        name: string;
-        lastCommit: { hash: string; message: string; timestamp: string };
-      }>;
-    }
+    type: 'SET_BRANCHES';
+    payload: Array<{
+      name: string;
+      lastCommit: { hash: string; message: string; timestamp: string };
+    }>;
+  }
   | { type: 'SET_SELECTED_FILE_EXTENSION'; payload: string[] }
   | { type: 'SET_SEARCH_QUERY'; payload: string }
   | { type: 'SET_FILE_EXTENSIONS'; payload: string[] }
@@ -42,6 +44,8 @@ export const reducer = (state: State, action: Action): State => {
       return { ...state, files: action.payload };
     case 'SET_SELECTED_FILES':
       return { ...state, selectedFiles: action.payload };
+    case 'SET_COLLAPSED_FILES':
+      return { ...state, collapsedFiles: action.payload };
     case 'SET_REPO':
       return { ...state, repo: action.payload };
     case 'SET_IS_LOADING_REPO_FILES':
@@ -79,6 +83,7 @@ export const reducer = (state: State, action: Action): State => {
 export const initialState: State = {
   files: [],
   selectedFiles: new Set(),
+  collapsedFiles: new Set(),
   repo: '',
   isLoadingRepoFiles: false,
   isLoadingFileContents: false,
