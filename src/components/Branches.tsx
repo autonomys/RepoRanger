@@ -28,7 +28,7 @@ export const Branches: React.FC<BranchesProps> = memo(
                 value={branch.name}
                 checked={selectedBranch === branch.name}
                 onChange={(e) => handleBranchSelect(e.target.value)}
-                className="form-radio text-blue-500 mr-2"
+                className="text-blue-500 mr-2"
               />
               {branch.name}
             </label>

@@ -2,7 +2,6 @@ import { GitHubFile } from './types';
 
 interface State {
   files: GitHubFile[];
-  selectedFiles: Set<string>;
   repo: string;
   isLoadingRepoFiles: boolean;
   isLoadingFileContents: boolean;
@@ -20,28 +19,55 @@ export type Action =
   | { type: 'RESET' }
   | { type: 'SET_FILES'; payload: GitHubFile[] }
   | { type: 'SET_SELECTED_FILES'; payload: Set<string> }
+  | { type: 'SET_COLLAPSED_FILES'; payload: Set<string> }
   | { type: 'SET_REPO'; payload: string }
   | { type: 'SET_IS_LOADING_REPO_FILES'; payload: boolean }
   | { type: 'SET_IS_LOADING_FILE_CONTENTS'; payload: boolean }
   | { type: 'SET_SELECTED_BRANCH'; payload: string }
   | {
-      type: 'SET_BRANCHES';
-      payload: Array<{
-        name: string;
-        lastCommit: { hash: string; message: string; timestamp: string };
-      }>;
-    }
+    type: 'SET_BRANCHES';
+    payload: Array<{
+      name: string;
+      lastCommit: { hash: string; message: string; timestamp: string };
+    }>;
+  }
   | { type: 'SET_SELECTED_FILE_EXTENSION'; payload: string[] }
   | { type: 'SET_SEARCH_QUERY'; payload: string }
   | { type: 'SET_FILE_EXTENSIONS'; payload: string[] }
+  | { type: 'TOGGLE_SELECT_FILE'; payload: string }
+  | { type: 'TOGGLE_CONTENT_COLLAPSE'; payload: string }
   | { type: 'CLEAR_SELECTED_FILES' };
 
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case 'SET_FILES':
       return { ...state, files: action.payload };
-    case 'SET_SELECTED_FILES':
-      return { ...state, selectedFiles: action.payload };
+    case 'TOGGLE_SELECT_FILE': {
+      return {
+        ...state,
+        files: state.files.map((file) => {
+          if (file.path === action.payload) {
+            return {
+              ...file,
+              isSelected: !file.isSelected,
+              isCollapsed: file.isSelected ? file.isCollapsed : false,
+            };
+          }
+          return file;
+        }),
+      };
+    }
+    case 'TOGGLE_CONTENT_COLLAPSE': {
+      return {
+        ...state,
+        files: state.files.map((file) => {
+          if (file.path === action.payload) {
+            return { ...file, isCollapsed: !file.isCollapsed };
+          }
+          return file;
+        }),
+      };
+    }
     case 'SET_REPO':
       return { ...state, repo: action.payload };
     case 'SET_IS_LOADING_REPO_FILES':
@@ -70,7 +96,7 @@ export const reducer = (state: State, action: Action): State => {
         fileExtensions: action.payload,
       };
     case 'CLEAR_SELECTED_FILES':
-      return { ...state, selectedFiles: new Set() };
+      return { ...state, files: state.files.map((file) => ({ ...file, isSelected: false, isCollapsed: false })) };
     default:
       return state;
   }
@@ -78,7 +104,6 @@ export const reducer = (state: State, action: Action): State => {
 
 export const initialState: State = {
   files: [],
-  selectedFiles: new Set(),
   repo: '',
   isLoadingRepoFiles: false,
   isLoadingFileContents: false,

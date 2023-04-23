@@ -49,7 +49,6 @@ export const FileFilter: React.FC<FileFilterProps> = ({
           <label key={extension} className="inline-flex items-center">
             <input
               type="checkbox"
-              className="form-checkbox"
               value={extension}
               checked={selectedExtensions.includes(extension)}
               onChange={handleExtensionChange}

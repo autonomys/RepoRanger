@@ -1,11 +1,6 @@
 import { useEffect, useReducer, useMemo, useCallback } from 'react';
-import {
-  getSelectedFiles,
-  sortFilesBySelection,
-  getFileExtensions,
-} from './utils';
+import { sortFilesBySelection, getFileExtensions } from './utils';
 import { fetchAllFiles, fetchBranches } from './api';
-import { GitHubFile } from './types';
 import {
   RepositoryInput,
   Result,
@@ -23,7 +18,6 @@ function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
     files,
-    selectedFiles,
     repo,
     isLoadingRepoFiles,
     selectedBranch,
@@ -86,16 +80,13 @@ function App() {
     }
   }, []);
 
-  const handleSelection = useCallback(
-    (file: GitHubFile) => {
-      const files = getSelectedFiles(selectedFiles, file);
-      dispatch({
-        type: 'SET_SELECTED_FILES',
-        payload: files,
-      });
-    },
-    [selectedFiles]
-  );
+  const handleSelection = useCallback((path: string) => {
+    dispatch({ type: 'TOGGLE_SELECT_FILE', payload: path });
+  }, []);
+
+  const handleFileCollapse = useCallback((path: string) => {
+    dispatch({ type: 'TOGGLE_CONTENT_COLLAPSE', payload: path });
+  }, []);
 
   const handleReset = useCallback(() => {
     dispatch({ type: 'RESET' });
@@ -161,12 +152,16 @@ function App() {
       );
     }
 
-    return sortFilesBySelection(filesToDisplay, selectedFiles).filter((file) =>
+    return sortFilesBySelection(filesToDisplay).filter((file) =>
       file.path
         .toLowerCase()
         .includes(searchQuery ? searchQuery.toLowerCase() : '')
     );
-  }, [files, selectedExtensions, selectedFiles, searchQuery]);
+  }, [files, selectedExtensions, searchQuery]);
+
+  const selectedFiles = useMemo(() => {
+    return files.filter((file) => file.isSelected);
+  }, [files]);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -208,7 +203,6 @@ function App() {
                 ) : repo ? (
                   <FileList
                     files={displayedFiles}
-                    selectedFiles={selectedFiles}
                     handleSelection={handleSelection}
                   />
                 ) : (
@@ -216,16 +210,16 @@ function App() {
                 )}
               </div>
               {repo && (
-                <div className="md:col-span-2 min-h-[50vh]">
+                <div className="md:col-span-2 min-h-[100vh]">
                   <div className="bg-white shadow p-6 rounded min-h-full">
                     <Result
-                      selectedFiles={selectedFiles}
-                      files={files}
+                      files={selectedFiles}
                       repo={repo}
                       branch={selectedBranch}
                       isLoadingFileContents={isLoadingFileContents}
                       handleClearFiles={handleClearFiles}
                       setContentsLoading={setContentsLoading}
+                      handleFileCollapse={handleFileCollapse}
                     />
                   </div>
                 </div>

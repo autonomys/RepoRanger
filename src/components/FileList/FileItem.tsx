@@ -2,27 +2,23 @@ import { GitHubFile } from '../../types';
 
 interface FileItemProps {
   file: GitHubFile;
-  selectedFiles: Set<string>;
-  onSelection: (file: GitHubFile) => void;
+  handleSelection: (path: string) => void;
 }
 
 export const FileItem: React.FC<FileItemProps> = ({
   file,
-  selectedFiles,
-  onSelection,
+  handleSelection,
 }) => {
-  const isSelected = selectedFiles.has(file.path);
   return (
     <li className="pl-2 py-1">
       <label className="cursor-pointer flex items-center space-x-2">
         <input
           type="checkbox"
-          checked={isSelected}
-          onChange={() => onSelection(file)}
-          className="form-checkbox text-blue-500"
+          checked={file.isSelected}
+          onChange={() => handleSelection(file.path)}
         />
         <span
-          className={`truncate w-full ${isSelected ? 'font-semibold' : ''}`}
+          className={`truncate w-full ${file.isSelected ? 'font-semibold' : ''}`}
         >
           {file.path}
         </span>

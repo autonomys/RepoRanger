@@ -1,36 +1,37 @@
 import { GitHubFile } from '../../types';
+import { ChevronDownIcon, ChevronRightIcon } from '../icons';
 
 interface ContentsProps {
-  selectedFiles: string[];
-  files: GitHubFile[];
+  selectedFiles: GitHubFile[];
   selectedFileContents: Map<string, string>;
+  handleFileCollapse: (path: string) => void;
 }
 
 export const Contents: React.FC<ContentsProps> = ({
   selectedFiles,
-  files,
   selectedFileContents,
+  handleFileCollapse,
 }) => {
   return (
     <div>
       <h2 className="font-semibold mb-2">Selected Files:</h2>
-      {selectedFiles.map((path, index) => {
-        const file = files.find((f) => f.path === path);
-        if (file) {
-          const fileContent = selectedFileContents.get(path);
-          return (
-            <div key={`${file.path}-${index}`} className="mb-6">
-              <h3 className="font-semibold mb-2">
-                {index + 1}. file: {file.path}
-              </h3>
+      {selectedFiles.map(({ path, isCollapsed }, index) => {
+        const fileContent = selectedFileContents.get(path);
+        return (
+          <div key={`${path}-${index}`} className="mb-6">
+            <div className="flex align-center mb-2">
+              <button onClick={() => handleFileCollapse(path)}>
+                {isCollapsed ? <ChevronRightIcon /> : <ChevronDownIcon />}
+              </button>
+              <h3>{path}</h3>
+            </div>
+            <div style={{ display: isCollapsed ? 'none' : 'block' }}>
               <pre className="bg-gray-100 p-4 rounded overflow-x-auto">
                 {fileContent}
               </pre>
             </div>
-          );
-        } else {
-          return null;
-        }
+          </div>
+        );
       })}
     </div>
   );
