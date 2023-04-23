@@ -1,6 +1,6 @@
 import { Button } from './Button';
 
-interface FileSearchAndFilterProps {
+interface FileFilterProps {
   selectedExtensions: string[];
   onSelectExtension: (extension: string) => void;
   extensions: string[];
@@ -9,7 +9,7 @@ interface FileSearchAndFilterProps {
   onChange: (value: string) => void;
 }
 
-export const FileSearchAndFilter: React.FC<FileSearchAndFilterProps> = ({
+export const FileFilter: React.FC<FileFilterProps> = ({
   selectedExtensions,
   onSelectExtension,
   extensions,

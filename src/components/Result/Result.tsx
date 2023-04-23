@@ -1,30 +1,34 @@
-import { GitHubFile } from '../types';
-import { CharacterCount, SelectedFileList, Loading, Button } from './';
-import { useFileContents } from '../useFileContents';
-import { Action } from '../App';
+import { memo } from 'react';
+import { GitHubFile } from '../../types';
+import { Loading, Button } from '..';
+import { CharacterCount } from './CharacterCount';
+import { Contents } from './Contents';
+import { useFileContents } from '../../hooks/useFileContents';
 
 const CHARACTER_LIMIT = 15000;
 
-export const SelectedFiles: React.FC<{
+export const Result: React.FC<{
   selectedFiles: Set<string>;
   files: GitHubFile[];
   repo: string;
   branch: string;
-  dispatch: React.Dispatch<Action>;
   isLoadingFileContents: boolean;
-}> = ({
+  handleClearFiles: () => void;
+  setContentsLoading: (isLoading: boolean) => void;
+}> = memo(({
   selectedFiles,
   files,
   repo,
   branch,
-  dispatch,
   isLoadingFileContents,
+  handleClearFiles,
+  setContentsLoading,
 }) => {
   const { contents, totalCharCount, memoizedSelectedFiles } = useFileContents(
     selectedFiles,
     repo,
     branch,
-    dispatch
+    setContentsLoading
   );
 
   const handleDownload = () => {
@@ -56,10 +60,7 @@ export const SelectedFiles: React.FC<{
           <>
             <Button onClick={handleCopy}>Copy</Button>
             <Button onClick={handleDownload}>Download</Button>
-            <Button
-              variant="danger"
-              onClick={() => dispatch({ type: 'CLEAR_SELECTED_FILES' })}
-            >
+            <Button variant="danger" onClick={handleClearFiles}>
               Clear
             </Button>
           </>
@@ -68,7 +69,7 @@ export const SelectedFiles: React.FC<{
       {isLoadingFileContents ? (
         <Loading />
       ) : selectedFiles.size > 0 ? (
-        <SelectedFileList
+        <Contents
           selectedFiles={memoizedSelectedFiles}
           files={files}
           selectedFileContents={contents}
@@ -80,4 +81,4 @@ export const SelectedFiles: React.FC<{
       )}
     </div>
   );
-};
+});

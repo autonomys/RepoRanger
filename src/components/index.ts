@@ -1,12 +1,10 @@
-export { FileTree } from './FileTree';
-export { BranchSelector } from './BranchSelector';
+export { Branches } from './Branches';
 export { Loading } from './Loading';
 export { NoRepositorySelected } from './NoRepositorySelected';
-export { FileList } from './FileList'; 
-export { SelectedFiles } from './SelectedFiles';
+export { FileList } from './FileList/FileList'; 
 export { RepositoryInput } from './RepositoryInput';
 export { LastCommit } from './LastCommit';
-export { CharacterCount } from './CharacterCount';
-export { SelectedFileList } from './SelectedFileList';
-export { FileSearchAndFilter } from './FileSearchAndFilter';
+export { FileFilter } from './FileFilter';
 export { Button } from './Button';
+export { Header } from './Header';
+export { Result } from './Result';

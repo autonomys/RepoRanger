@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Button } from './Button';
 
 interface RepositoryInputProps {
@@ -16,19 +16,19 @@ export const RepositoryInput: React.FC<RepositoryInputProps> = ({
     setInputValue(e.target.value);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     const repoMatch = inputValue.match(/github.com\/(.+\/.+)(\/|$)/i);
     if (repoMatch && repoMatch[1]) {
       onSubmit(repoMatch[1]);
     } else {
       alert('Invalid GitHub repository URL.');
     }
-  };
+  }, [inputValue, onSubmit]);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setInputValue('');
     onReset();
-  };
+  }, [onReset]);
 
   return (
     <div className="mb-4">
