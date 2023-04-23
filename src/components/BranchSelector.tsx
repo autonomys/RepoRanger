@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface BranchSelectorProps {
   branches: { name: string, lastCommit: { hash: string, message: string, timestamp: string } }[];
   selectedBranch: string;
@@ -11,7 +9,6 @@ export const BranchSelector: React.FC<BranchSelectorProps> = ({
   selectedBranch,
   onBranchChange,
 }) => {
-
   return (
     <div className="mb-4">
       <span className="block mb-2 text-sm font-medium text-gray-700">Select Branch:</span>

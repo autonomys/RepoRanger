@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface LastCommitProps {
   repo: string;
   commit: {
