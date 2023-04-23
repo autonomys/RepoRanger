@@ -48,7 +48,7 @@ function App() {
           JSON.stringify(lastSuccessfulFetchedData) !== JSON.stringify(branches)
         ) {
           dispatch({ type: 'SET_BRANCHES', payload: branches });
-          dispatch({ type: 'SET_SELECTED_BRANCH', payload: branches[0].name });
+          dispatch({ type: 'SET_SELECTED_BRANCH', payload: selectedBranch ? selectedBranch : branches[0].name });
           dispatch({ type: 'SET_REPO', payload: repo });
           setLastSuccessfulFetchedData(branches);
         }
@@ -56,7 +56,7 @@ function App() {
         alert('Failed to fetch repository branches');
       }
     },
-    [lastSuccessfulFetchedData]
+    [lastSuccessfulFetchedData, selectedBranch]
   );
 
   useEffect(() => {
