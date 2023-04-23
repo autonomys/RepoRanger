@@ -18,7 +18,6 @@ interface State {
 export type Action =
   | { type: 'RESET' }
   | { type: 'SET_FILES'; payload: GitHubFile[] }
-  | { type: 'SET_SELECTED_FILES'; payload: Set<string> }
   | { type: 'SET_COLLAPSED_FILES'; payload: Set<string> }
   | { type: 'SET_REPO'; payload: string }
   | { type: 'SET_IS_LOADING_REPO_FILES'; payload: boolean }
