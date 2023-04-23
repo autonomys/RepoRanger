@@ -1,4 +1,4 @@
-import { GitHubFile } from './types';
+import { GitHubFile, GithubBranch } from './types';
 
 interface State {
   files: GitHubFile[];
@@ -6,10 +6,7 @@ interface State {
   isLoadingRepoFiles: boolean;
   isLoadingFileContents: boolean;
   selectedBranch: string;
-  branches: {
-    name: string;
-    lastCommit: { hash: string; message: string; timestamp: string };
-  }[];
+  branches: GithubBranch[];
   searchQuery: string;
   fileExtensions: string[];
   selectedExtensions: string[];
@@ -27,10 +24,7 @@ export type Action =
   | { type: 'SET_SELECTED_BRANCH'; payload: string }
   | {
     type: 'SET_BRANCHES';
-    payload: Array<{
-      name: string;
-      lastCommit: { hash: string; message: string; timestamp: string };
-    }>;
+    payload: Array<GithubBranch>;
   }
   | { type: 'SET_SELECTED_FILE_EXTENSION'; payload: string[] }
   | { type: 'SET_SEARCH_QUERY'; payload: string }

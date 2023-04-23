@@ -13,12 +13,11 @@ import {
   Header,
 } from './components';
 import { reducer, initialState } from './stateReducer';
-import { GitHubFile } from './types';
+import { GithubBranch } from './types';
 
 function App() {
-  const [lastFetched, setLastFetched] = useState(Date.now());
   const [lastSuccessfulFetchedData, setLastSuccessfulFetchedData] = useState<
-    GitHubFile[] | null
+    GithubBranch[] | null
   >(null);
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
@@ -33,15 +32,42 @@ function App() {
     fileExtensions,
   } = state;
 
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      setLastFetched(Date.now());
-    }, 5000);
+  const handleRepoSubmit = useCallback(
+    async (repo: string) => {
+      try {
+        const branches = await fetchBranches(repo).then((branches) =>
+          branches.sort((a, b) => {
+            // Sorting branches so that 'main' or 'master' always comes first
+            if (a.name === 'main' || a.name === 'master') return -1;
+            if (b.name === 'main' || b.name === 'master') return 1;
+            return a.name.localeCompare(b.name);
+          })
+        );
 
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, []);
+        if (
+          JSON.stringify(lastSuccessfulFetchedData) !== JSON.stringify(branches)
+        ) {
+          dispatch({ type: 'SET_BRANCHES', payload: branches });
+          dispatch({ type: 'SET_SELECTED_BRANCH', payload: branches[0].name });
+          dispatch({ type: 'SET_REPO', payload: repo });
+          setLastSuccessfulFetchedData(branches);
+        }
+      } catch (error) {
+        alert('Failed to fetch repository branches');
+      }
+    },
+    [lastSuccessfulFetchedData]
+  );
+
+  useEffect(() => {
+    if (repo) {
+      const interval = setInterval(async () => {
+        await handleRepoSubmit(repo);
+      }, 6000);
+
+      return () => clearInterval(interval);
+    }
+  }, [handleRepoSubmit, repo]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -53,21 +79,13 @@ function App() {
           const files = await fetchAllFiles(repo, selectedBranch);
           const fileExtensions = getFileExtensions(files);
 
-          // Check if the fetched data has changed.
-          if (
-            !isCancelled &&
-            JSON.stringify(lastSuccessfulFetchedData) !== JSON.stringify(files)
-          ) {
+          if (!isCancelled) {
             dispatch({ type: 'SET_FILES', payload: files });
             dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
             dispatch({ type: 'SET_FILE_EXTENSIONS', payload: fileExtensions });
-
-            // Update the last successful fetched data state.
-            setLastSuccessfulFetchedData(files);
           }
         } catch (error) {
           console.error('Failed to fetch data', error);
-        } finally {
           dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
         }
       }
@@ -79,26 +97,7 @@ function App() {
       isCancelled = true;
       dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
     };
-  }, [repo, selectedBranch, lastFetched, lastSuccessfulFetchedData]);
-
-  const handleRepoSubmit = useCallback(async (repo: string) => {
-    try {
-      const branches = await fetchBranches(repo).then((branches) =>
-        branches.sort((a, b) => {
-          // Sorting branches so that 'main' or 'master' always comes first
-          if (a.name === 'main' || a.name === 'master') return -1;
-          if (b.name === 'main' || b.name === 'master') return 1;
-          return a.name.localeCompare(b.name);
-        })
-      );
-
-      dispatch({ type: 'SET_BRANCHES', payload: branches });
-      dispatch({ type: 'SET_SELECTED_BRANCH', payload: branches[0].name });
-      dispatch({ type: 'SET_REPO', payload: repo });
-    } catch (error) {
-      alert('Failed to fetch repository branches');
-    }
-  }, []);
+  }, [repo, selectedBranch, lastSuccessfulFetchedData]);
 
   const handleSelection = useCallback((path: string) => {
     dispatch({ type: 'TOGGLE_SELECT_FILE', payload: path });
@@ -178,8 +177,6 @@ function App() {
         .includes(searchQuery ? searchQuery.toLowerCase() : '')
     );
   }, [files, selectedExtensions, searchQuery]);
-
-  console.log('displayedFiles', displayedFiles)
 
   const selectedFiles = useMemo(() => {
     return files.filter((file) => file.isSelected);
