@@ -210,7 +210,7 @@ function App() {
                 )}
               </div>
               {repo && (
-                <div className="md:col-span-2 min-h-[50vh]">
+                <div className="md:col-span-2 min-h-[100vh]">
                   <div className="bg-white shadow p-6 rounded min-h-full">
                     <Result
                       files={selectedFiles}
