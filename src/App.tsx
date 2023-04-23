@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useMemo } from 'react';
+import { useEffect, useReducer, useMemo, useCallback } from 'react';
 import {
   getSelectedFiles,
   sortFilesBySelection,
@@ -242,6 +242,14 @@ function App() {
     });
   };
 
+  const handleClearFiles = () => {
+    dispatch({ type: 'CLEAR_SELECTED_FILES' });
+  };
+
+  const setContentsLoading = useCallback((isLoading: boolean) => {
+    dispatch({ type: 'SET_IS_LOADING_FILE_CONTENTS', payload: isLoading });
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Header />
@@ -297,8 +305,9 @@ function App() {
                       files={files}
                       repo={repo}
                       branch={selectedBranch}
-                      dispatch={dispatch}
                       isLoadingFileContents={isLoadingFileContents}
+                      handleClearFiles={handleClearFiles}
+                      setContentsLoading={setContentsLoading}
                     />
                   </div>
                 </div>

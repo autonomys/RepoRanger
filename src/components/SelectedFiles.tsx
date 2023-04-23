@@ -1,7 +1,6 @@
 import { GitHubFile } from '../types';
 import { CharacterCount, SelectedFileList, Loading, Button } from './';
 import { useFileContents } from '../hooks/useFileContents';
-import { Action } from '../App';
 
 const CHARACTER_LIMIT = 15000;
 
@@ -10,21 +9,23 @@ export const SelectedFiles: React.FC<{
   files: GitHubFile[];
   repo: string;
   branch: string;
-  dispatch: React.Dispatch<Action>;
   isLoadingFileContents: boolean;
+  handleClearFiles: () => void;
+  setContentsLoading: (isLoading: boolean) => void;
 }> = ({
   selectedFiles,
   files,
   repo,
   branch,
-  dispatch,
   isLoadingFileContents,
+  handleClearFiles,
+  setContentsLoading,
 }) => {
   const { contents, totalCharCount, memoizedSelectedFiles } = useFileContents(
     selectedFiles,
     repo,
     branch,
-    dispatch
+    setContentsLoading,
   );
 
   const handleDownload = () => {
@@ -58,7 +59,7 @@ export const SelectedFiles: React.FC<{
             <Button onClick={handleDownload}>Download</Button>
             <Button
               variant="danger"
-              onClick={() => dispatch({ type: 'CLEAR_SELECTED_FILES' })}
+              onClick={handleClearFiles}
             >
               Clear
             </Button>

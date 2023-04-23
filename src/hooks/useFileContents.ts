@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import { fetchFileContent } from '../api';
-import { Action } from '../App';
 
 interface FileContents {
   contents: Map<string, string>;
@@ -12,12 +11,12 @@ export const useFileContents = (
   selectedFiles: Set<string>,
   repo: string,
   branch: string,
-  dispatch: React.Dispatch<Action>
+  setContentsLoading: (isLoading: boolean) => void,
 ): FileContents => {
   const [selectedFileContents, setSelectedFileContents] = useState<
     Map<string, string>
   >(new Map());
-  
+
   const totalCharCount = useMemo(() => {
     let totalChars = 0;
     selectedFileContents.forEach((content) => {
@@ -43,8 +42,8 @@ export const useFileContents = (
       memoizedSelectedFiles.map((path) => [path, ''])
     );
 
-    dispatch({ type: 'SET_IS_LOADING_FILE_CONTENTS', payload: true });
-    
+    setContentsLoading(true)
+
     memoizedSelectedFiles.forEach((path) => {
       const promise = fetchFileContent(
         repo,
@@ -60,16 +59,16 @@ export const useFileContents = (
         });
       promises.push(promise);
     });
-    
+
     Promise.all(promises).then(() => {
       setSelectedFileContents(newSelectedFileContents);
-      dispatch({ type: 'SET_IS_LOADING_FILE_CONTENTS', payload: false });
+      setContentsLoading(false)
     });
 
     return () => {
       abortController.abort();
     };
-  }, [memoizedSelectedFiles, repo, branch, dispatch]);
+  }, [memoizedSelectedFiles, repo, branch, setContentsLoading]);
 
   return { contents: selectedFileContents, totalCharCount, memoizedSelectedFiles };
 };
