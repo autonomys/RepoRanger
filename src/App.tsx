@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useMemo, useCallback } from 'react';
+import { useEffect, useReducer, useMemo, useCallback, useState } from 'react';
 import { sortFilesBySelection, getFileExtensions } from './utils';
 import { fetchAllFiles, fetchBranches } from './api';
 import {
@@ -13,8 +13,13 @@ import {
   Header,
 } from './components';
 import { reducer, initialState } from './stateReducer';
+import { GitHubFile } from './types';
 
 function App() {
+  const [lastFetched, setLastFetched] = useState(Date.now());
+  const [lastSuccessfulFetchedData, setLastSuccessfulFetchedData] = useState<
+    GitHubFile[] | null
+  >(null);
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
     files,
@@ -29,8 +34,14 @@ function App() {
   } = state;
 
   useEffect(() => {
-    dispatch({ type: 'SET_SELECTED_FILES', payload: new Set() });
-  }, [repo]);
+    const intervalId = setInterval(() => {
+      setLastFetched(Date.now());
+    }, 5000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
 
   useEffect(() => {
     let isCancelled = false;
@@ -41,13 +52,22 @@ function App() {
         try {
           const files = await fetchAllFiles(repo, selectedBranch);
           const fileExtensions = getFileExtensions(files);
-          if (!isCancelled) {
+
+          // Check if the fetched data has changed.
+          if (
+            !isCancelled &&
+            JSON.stringify(lastSuccessfulFetchedData) !== JSON.stringify(files)
+          ) {
             dispatch({ type: 'SET_FILES', payload: files });
             dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
             dispatch({ type: 'SET_FILE_EXTENSIONS', payload: fileExtensions });
+
+            // Update the last successful fetched data state.
+            setLastSuccessfulFetchedData(files);
           }
         } catch (error) {
           console.error('Failed to fetch data', error);
+        } finally {
           dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
         }
       }
@@ -59,7 +79,7 @@ function App() {
       isCancelled = true;
       dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
     };
-  }, [repo, selectedBranch]);
+  }, [repo, selectedBranch, lastFetched, lastSuccessfulFetchedData]);
 
   const handleRepoSubmit = useCallback(async (repo: string) => {
     try {
@@ -158,6 +178,8 @@ function App() {
         .includes(searchQuery ? searchQuery.toLowerCase() : '')
     );
   }, [files, selectedExtensions, searchQuery]);
+
+  console.log('displayedFiles', displayedFiles)
 
   const selectedFiles = useMemo(() => {
     return files.filter((file) => file.isSelected);
