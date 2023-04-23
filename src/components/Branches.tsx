@@ -1,13 +1,13 @@
-interface BranchSelectorProps {
+interface BranchesProps {
   branches: { name: string, lastCommit: { hash: string, message: string, timestamp: string } }[];
   selectedBranch: string;
-  onBranchChange: (branch: string) => void;
+  handleBranchSelect: (branch: string) => void;
 }
 
-export const BranchSelector: React.FC<BranchSelectorProps> = ({
+export const Branches: React.FC<BranchesProps> = ({
   branches,
   selectedBranch,
-  onBranchChange,
+  handleBranchSelect,
 }) => {
   return (
     <div className="mb-4">
@@ -23,7 +23,7 @@ export const BranchSelector: React.FC<BranchSelectorProps> = ({
               name="branch"
               value={branch.name}
               checked={selectedBranch === branch.name}
-              onChange={e => onBranchChange(e.target.value)}
+              onChange={e => handleBranchSelect(e.target.value)}
               className="form-radio text-blue-500 mr-2"
             />
             {branch.name}

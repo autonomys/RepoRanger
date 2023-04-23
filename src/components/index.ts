@@ -1,4 +1,4 @@
-export { BranchSelector } from './BranchSelector';
+export { Branches } from './Branches';
 export { Loading } from './Loading';
 export { NoRepositorySelected } from './NoRepositorySelected';
 export { FileList } from './FileList/FileList'; 
