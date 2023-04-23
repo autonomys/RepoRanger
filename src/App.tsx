@@ -18,8 +18,6 @@ function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
     files,
-    selectedFiles,
-    collapsedFiles,
     repo,
     isLoadingRepoFiles,
     selectedBranch,
@@ -82,37 +80,13 @@ function App() {
     }
   }, []);
 
-  const handleSelection = useCallback(
-    (path: string) => {
-      const newSelectedFiles = new Set(selectedFiles);
+  const handleSelection = useCallback((path: string) => {
+    dispatch({ type: 'TOGGLE_SELECT_FILE', payload: path });
+  }, []);
 
-      if (newSelectedFiles.has(path)) {
-        newSelectedFiles.delete(path);
-        collapsedFiles.delete(path);
-      } else {
-        newSelectedFiles.add(path);
-      }
-      dispatch({
-        type: 'SET_SELECTED_FILES',
-        payload: newSelectedFiles,
-      });
-    },
-    [selectedFiles, collapsedFiles]
-  );
-
-  const handleFileCollapse = useCallback(
-    (path: string) => {
-      const newCollapsedFiles = new Set(collapsedFiles);
-
-      if (newCollapsedFiles.has(path)) {
-        newCollapsedFiles.delete(path);
-      } else {
-        newCollapsedFiles.add(path);
-      }
-      dispatch({ type: 'SET_COLLAPSED_FILES', payload: newCollapsedFiles });
-    },
-    [collapsedFiles]
-  );
+  const handleFileCollapse = useCallback((path: string) => {
+    dispatch({ type: 'TOGGLE_CONTENT_COLLAPSE', payload: path });
+  }, []);
 
   const handleReset = useCallback(() => {
     dispatch({ type: 'RESET' });
@@ -178,12 +152,16 @@ function App() {
       );
     }
 
-    return sortFilesBySelection(filesToDisplay, selectedFiles).filter((file) =>
+    return sortFilesBySelection(filesToDisplay).filter((file) =>
       file.path
         .toLowerCase()
         .includes(searchQuery ? searchQuery.toLowerCase() : '')
     );
-  }, [files, selectedExtensions, selectedFiles, searchQuery]);
+  }, [files, selectedExtensions, searchQuery]);
+
+  const selectedFiles = useMemo(() => {
+    return files.filter((file) => file.isSelected);
+  }, [files]);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -225,7 +203,6 @@ function App() {
                 ) : repo ? (
                   <FileList
                     files={displayedFiles}
-                    selectedFiles={selectedFiles}
                     handleSelection={handleSelection}
                   />
                 ) : (
@@ -236,15 +213,13 @@ function App() {
                 <div className="md:col-span-2 min-h-[50vh]">
                   <div className="bg-white shadow p-6 rounded min-h-full">
                     <Result
-                      selectedFiles={selectedFiles}
-                      files={files}
+                      files={selectedFiles}
                       repo={repo}
                       branch={selectedBranch}
                       isLoadingFileContents={isLoadingFileContents}
                       handleClearFiles={handleClearFiles}
                       setContentsLoading={setContentsLoading}
                       handleFileCollapse={handleFileCollapse}
-                      collapsedFiles={collapsedFiles}
                     />
                   </div>
                 </div>

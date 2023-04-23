@@ -29,6 +29,8 @@ export const fetchAllFiles = async (repo: string, branch: string, signal?: Abort
       name: file.path.split('/').pop() || '',
       path: file.path,
       index,
+      isSelected: false,
+      isCollapsed: false,
     }));
 
   return files;

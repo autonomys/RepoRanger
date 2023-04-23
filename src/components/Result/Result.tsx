@@ -1,14 +1,13 @@
-import { memo } from 'react';
+import { memo, useState, useEffect, useMemo } from 'react';
 import { GitHubFile } from '../../types';
 import { Loading, Button } from '..';
 import { CharacterCount } from './CharacterCount';
 import { Contents } from './Contents';
-import { useFileContents } from '../../hooks/useFileContents';
+import { fetchFileContent } from '../../api';
 
 const CHARACTER_LIMIT = 15000;
 
 export const Result: React.FC<{
-  selectedFiles: Set<string>;
   files: GitHubFile[];
   repo: string;
   branch: string;
@@ -16,75 +15,120 @@ export const Result: React.FC<{
   handleClearFiles: () => void;
   setContentsLoading: (isLoading: boolean) => void;
   handleFileCollapse: (path: string) => void;
-  collapsedFiles: Set<string>;
-}> = memo(({
-  selectedFiles,
-  files,
-  repo,
-  branch,
-  isLoadingFileContents,
-  handleClearFiles,
-  setContentsLoading,
-  collapsedFiles,
-  handleFileCollapse,
-}) => {
-  const { contents, totalCharCount, memoizedSelectedFiles } = useFileContents(
-    selectedFiles,
+}> = memo(
+  ({
+    files,
     repo,
     branch,
-    setContentsLoading
-  );
+    isLoadingFileContents,
+    handleClearFiles,
+    setContentsLoading,
+    handleFileCollapse,
+  }) => {
+    const [selectedFileContents, setSelectedFileContents] = useState<
+      Map<string, string>
+    >(new Map());
 
-  const handleDownload = () => {
-    const fileContent = [...contents.values()].join('\n\n');
-    const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${repo}-${branch}-selected-files.txt`;
-    link.click();
-    URL.revokeObjectURL(url);
-  };
+    const totalCharCount = useMemo(() => {
+      let totalChars = 0;
+      selectedFileContents.forEach((content) => {
+        totalChars += content.length;
+      });
+      return totalChars;
+    }, [selectedFileContents]);
 
-  const handleCopy = () => {
-    const fileContent = [...contents.values()].join('\n\n');
-    navigator.clipboard.writeText(fileContent).then(() => {
-      alert('Contents copied to clipboard.');
-    });
-  };
+    useEffect(() => {
+      const abortController = new AbortController();
 
-  return (
-    <div>
-      <div className="flex justify-between items-start mb-4 gap-2">
-        <CharacterCount
-          totalCharCount={totalCharCount}
-          charLimit={CHARACTER_LIMIT}
-        />
-        {selectedFiles.size ? (
-          <>
-            <Button onClick={handleCopy}>Copy</Button>
-            <Button onClick={handleDownload}>Download</Button>
-            <Button variant="danger" onClick={handleClearFiles}>
-              Clear
-            </Button>
-          </>
-        ) : null}
+      if (files.length === 0) {
+        setSelectedFileContents(new Map());
+        return;
+      }
+
+      const promises: Promise<void>[] = [];
+      const newSelectedFileContents = new Map(
+        [...files].map(({ path }) => [path, ''])
+      );
+
+      setContentsLoading(true);
+
+      files.forEach(({ path }) => {
+        const promise = fetchFileContent(
+          repo,
+          branch,
+          path,
+          abortController.signal
+        )
+          .then(({ content }) => {
+            newSelectedFileContents.set(path, content || '');
+          })
+          .catch((error) => {
+            console.error(`Error fetching file content for ${path}:`, error);
+          });
+        promises.push(promise);
+      });
+
+      Promise.all(promises).then(() => {
+        setSelectedFileContents(newSelectedFileContents);
+        setContentsLoading(false);
+      });
+
+      return () => {
+        abortController.abort();
+      };
+    }, [repo, branch, setContentsLoading, files]);
+
+    const handleDownload = () => {
+      const fileContent = [...selectedFileContents.values()].join('\n\n');
+      const blob = new Blob([fileContent], {
+        type: 'text/plain;charset=utf-8',
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${repo}-${branch}-selected-files.txt`;
+      link.click();
+      URL.revokeObjectURL(url);
+    };
+
+    const handleCopy = () => {
+      const fileContent = [...selectedFileContents.values()].join('\n\n');
+      navigator.clipboard.writeText(fileContent).then(() => {
+        alert('Contents copied to clipboard.');
+      });
+    };
+
+    return (
+      <div>
+        <div className="flex justify-between items-start mb-4 gap-2">
+          <CharacterCount
+            totalCharCount={totalCharCount}
+            charLimit={CHARACTER_LIMIT}
+          />
+          {files.length ? (
+            <>
+              <Button onClick={handleCopy}>Copy</Button>
+              <Button onClick={handleDownload}>Download</Button>
+              <Button variant="danger" onClick={handleClearFiles}>
+                Clear
+              </Button>
+            </>
+          ) : null}
+        </div>
+        {isLoadingFileContents ? (
+          <Loading />
+        ) : files.length > 0 ? (
+          <Contents
+            selectedFiles={files}
+            selectedFileContents={selectedFileContents}
+            handleFileCollapse={handleFileCollapse}
+          />
+        ) : (
+          <p className="text-gray-600">
+            Please select files to view their content.
+          </p>
+        )}
       </div>
-      {isLoadingFileContents ? (
-        <Loading />
-      ) : selectedFiles.size > 0 ? (
-        <Contents
-          selectedFiles={memoizedSelectedFiles}
-          files={files}
-          selectedFileContents={contents}
-          collapsedFiles={collapsedFiles}
-          handleFileCollapse={handleFileCollapse}
-        />
-      ) : (
-        <p className="text-gray-600">
-          Please select files to view their content.
-        </p>
-      )}
-    </div>
-  );
-});
+    );
+  }
+);
