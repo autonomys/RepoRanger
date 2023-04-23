@@ -1,6 +1,6 @@
 import { GitHubFile } from '../types';
 import { CharacterCount, SelectedFileList, Loading, Button } from './';
-import { useFileContents } from '../useFileContents';
+import { useFileContents } from '../hooks/useFileContents';
 import { Action } from '../App';
 
 const CHARACTER_LIMIT = 15000;

@@ -14,7 +14,8 @@ import {
   NoRepositorySelected,
   FileList,
   LastCommit,
-  FileSearchAndFilter,
+  FileFilter,
+  Header,
 } from './components';
 
 interface State {
@@ -239,13 +240,11 @@ function App() {
       type: 'SET_SEARCH_QUERY',
       payload: '',
     });
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <header className="bg-blue-500 text-white text-xl p-4 font-semibold">
-        RepoRanger
-      </header>
+      <Header />
       <main className="p-4">
         <div className="container mx-auto">
           <div>
@@ -266,7 +265,7 @@ function App() {
                   commit={selectedBranchItem.lastCommit}
                   repo={repo}
                 />
-                <FileSearchAndFilter
+                <FileFilter
                   value={searchQuery}
                   onChange={handleSearchQuery}
                   selectedExtensions={selectedExtensions}
