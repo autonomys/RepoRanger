@@ -1,4 +1,4 @@
-import { GitHubFile } from './types';
+import { GitHubFile, GithubBranch } from './types';
 
 const options = {
   headers: {
@@ -66,7 +66,7 @@ export const fetchFileContent = async (
   }
 };
 
-export const fetchBranches = async (repo: string): Promise<{ name: string, lastCommit: { hash: string, message: string, timestamp: string } }[]> => {
+export const fetchBranches = async (repo: string): Promise<GithubBranch[]> => {
   const url = `https://api.github.com/repos/${repo}/branches`;
   const response = await fetch(url, options);
 

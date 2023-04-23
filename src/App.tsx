@@ -54,7 +54,6 @@ function App() {
         }
       } catch (error) {
         alert('Failed to fetch repository branches');
-        // test
       }
     },
     [lastSuccessfulFetchedData, selectedBranch]
