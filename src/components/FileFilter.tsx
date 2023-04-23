@@ -34,7 +34,7 @@ export const FileFilter: React.FC<FileFilterProps> = ({
           type="text"
           value={value}
           onChange={handleInputChange}
-          className="border border-gray-300 rounded w-full p-2 mb-4"
+          className="border border-gray-300 rounded md:w-2/3 lg:w-1/3 w-full p-2 mb-4"
           placeholder="Search files..."
           aria-label="Search files"
         />
@@ -44,7 +44,7 @@ export const FileFilter: React.FC<FileFilterProps> = ({
           </Button>
         ) : null}
       </div>
-      <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-9 xl:grid-cols-11 gap-1">
+      <div className="flex flex-wrap gap-4">
         {extensions.map((extension) => (
           <label key={extension} className="inline-flex items-center">
             <input
