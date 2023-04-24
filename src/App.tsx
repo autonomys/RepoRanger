@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useMemo, useCallback, useState } from 'react';
+import { useEffect, useReducer, useMemo, useCallback } from 'react';
 import { sortFilesBySelection, getFileExtensions } from './utils';
 import { fetchAllFiles, fetchBranches } from './api';
 import {
@@ -13,12 +13,8 @@ import {
   Header,
 } from './components';
 import { reducer, initialState } from './stateReducer';
-import { GithubBranch } from './types';
 
 function App() {
-  const [lastSuccessfulFetchedData, setLastSuccessfulFetchedData] = useState<
-    GithubBranch[] | null
-  >(null);
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
     files,
@@ -44,23 +40,18 @@ function App() {
           })
         );
 
-        if (
-          JSON.stringify(lastSuccessfulFetchedData) !== JSON.stringify(branches)
-        ) {
-          dispatch({ type: 'SET_BRANCHES', payload: branches });
-          dispatch({
-            type: 'SET_SELECTED_BRANCH',
-            payload: selectedBranch ? selectedBranch : branches[0].name,
-          });
-          dispatch({ type: 'SET_REPO', payload: repo });
-          setLastSuccessfulFetchedData(branches);
-        }
+        dispatch({ type: 'SET_BRANCHES', payload: branches });
+        dispatch({
+          type: 'SET_SELECTED_BRANCH',
+          payload: selectedBranch ? selectedBranch : branches[0].name,
+        });
+        dispatch({ type: 'SET_REPO', payload: repo });
       } catch (error) {
         console.error('Failed to fetch repository branches', error);
         alert('Failed to fetch repository branches');
       }
     },
-    [lastSuccessfulFetchedData, selectedBranch]
+    [selectedBranch]
   );
 
   useEffect(() => {
@@ -102,7 +93,7 @@ function App() {
       isCancelled = true;
       dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
     };
-  }, [repo, selectedBranch, lastSuccessfulFetchedData]);
+  }, [repo, selectedBranch]);
 
   const toggleFileSelect = useCallback((path: string) => {
     dispatch({ type: 'TOGGLE_SELECT_FILE', payload: path });
