@@ -66,6 +66,7 @@ export const Result: React.FC<ResultProps> = memo(
           })
           .catch((error) => {
             console.error(`Error fetching file content for ${path}:`, error);
+            alert(`Error fetching file content for ${path}`);
           });
         promises.push(promise);
       });
