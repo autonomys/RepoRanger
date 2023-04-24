@@ -56,6 +56,7 @@ function App() {
           setLastSuccessfulFetchedData(branches);
         }
       } catch (error) {
+        console.error('Failed to fetch repository branches', error);
         alert('Failed to fetch repository branches');
       }
     },
@@ -88,7 +89,8 @@ function App() {
             dispatch({ type: 'SET_FILE_EXTENSIONS', payload: fileExtensions });
           }
         } catch (error) {
-          console.error('Failed to fetch data', error);
+          console.error('Failed to fetch repository files', error);
+          alert('Failed to fetch repository files');
           dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
         }
       }
