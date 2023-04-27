@@ -9,6 +9,63 @@ RepoRanger is a React application that allows users to explore GitHub repositori
 - Select files to view their contents
 - Copy the contents of selected files to the clipboard
 
+## Architecture
+The following diagram shows the high-level architecture and connections between components, utils, and APIs in RepoRanger:
+
+```mermaid
+graph TD
+  subgraph Components
+    App
+    Header
+    RepositoryInput
+    Branches
+    LastCommit
+    FileFilter
+    Loading
+    NoRepositorySelected
+    FileList
+    Result
+    CharacterCount
+    Contents
+    Button
+    FileItem
+  end
+
+  subgraph Utils
+    sortFilesBySelection
+    getFileExtensions
+    formatNumber
+  end
+
+  subgraph API
+    fetchAllFiles
+    fetchBranches
+    fetchFileContent
+  end
+
+  App --> sortFilesBySelection
+  App --> getFileExtensions
+  App --> fetchAllFiles
+  App --> fetchBranches
+  App --> Header
+  App --> RepositoryInput
+  App --> Branches
+  App --> LastCommit
+  App --> FileFilter
+  App --> Loading
+  App --> NoRepositorySelected
+  App --> FileList
+  App --> Result
+  Result --> CharacterCount
+  Result --> Contents
+  Result --> Button
+  Result --> Loading
+  FileList --> FileItem
+  Result --> fetchFileContent
+  RepositoryInput --> Button
+  CharacterCount --> formatNumber
+```
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development purposes.
