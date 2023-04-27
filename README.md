@@ -105,8 +105,7 @@ yarn start
 ```
 The application will be available at `http://localhost:3000`.
 
-5. Deployment
-To create a production build, run:
+5. To create a production build for deployment, run:
 ```
 yarn build
 ```
