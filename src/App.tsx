@@ -45,7 +45,6 @@ function App() {
           type: 'SET_SELECTED_BRANCH',
           payload: selectedBranch ? selectedBranch : branches[0].name,
         });
-        dispatch({ type: 'SET_REPO', payload: repo });
       } catch (error) {
         console.error('Failed to fetch repository branches', error);
         alert('Failed to fetch repository branches');
@@ -56,6 +55,7 @@ function App() {
 
   useEffect(() => {
     if (repo) {
+      fetchRepoBranches(repo);
       const interval = setInterval(async () => {
         await fetchRepoBranches(repo);
       }, 6000);
@@ -87,7 +87,9 @@ function App() {
       }
     };
 
-    fetchBranchFiles();
+    if (repo && selectedBranch) {
+      fetchBranchFiles();
+    }
 
     return () => {
       isCancelled = true;
@@ -105,6 +107,11 @@ function App() {
 
   const resetRepo = useCallback(() => {
     dispatch({ type: 'RESET_REPO' });
+  }, []);
+
+  const setRepo = useCallback((repo: string) => {
+    dispatch({ type: 'RESET_REPO' });
+    dispatch({ type: 'SET_REPO', payload: repo });
   }, []);
 
   const selectBranch = useCallback((branch: string) => {
@@ -181,10 +188,7 @@ function App() {
       <main className="p-4">
         <div className="container mx-auto">
           <div>
-            <RepositoryInput
-              fetchRepoBranches={fetchRepoBranches}
-              resetRepo={resetRepo}
-            />
+            <RepositoryInput setRepo={setRepo} resetRepo={resetRepo} />
             {repo && (
               <Branches
                 branches={branches}
