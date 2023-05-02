@@ -2,12 +2,12 @@ import { useCallback, useState } from 'react';
 import { Button } from './Button';
 
 interface RepositoryInputProps {
-  fetchRepoBranches: (repo: string) => void;
+  setRepo: (repo: string) => void;
   resetRepo: () => void;
 }
 
 export const RepositoryInput: React.FC<RepositoryInputProps> = ({
-  fetchRepoBranches,
+  setRepo,
   resetRepo,
 }) => {
   const [inputValue, setInputValue] = useState('');
@@ -19,11 +19,11 @@ export const RepositoryInput: React.FC<RepositoryInputProps> = ({
   const handleSubmit = useCallback(() => {
     const repoMatch = inputValue.match(/github.com\/(.+\/.+)(\/|$)/i);
     if (repoMatch && repoMatch[1]) {
-      fetchRepoBranches(repoMatch[1]);
+      setRepo(repoMatch[1]);
     } else {
       alert('Invalid GitHub repository URL.');
     }
-  }, [inputValue, fetchRepoBranches]);
+  }, [inputValue, setRepo]);
 
   const handleResetClick = useCallback(() => {
     setInputValue('');
