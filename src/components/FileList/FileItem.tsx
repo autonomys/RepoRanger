@@ -18,7 +18,7 @@ export const FileItem: React.FC<FileItemProps> = ({
           onChange={() => toggleFileSelect(file.path)}
         />
         <span
-          className={`truncate w-full ${file.isSelected ? 'font-semibold' : ''}`}
+          className={`truncate w-full ${file.isSelected ? 'font-semibold' : ''} dark:text-gray-300`}
         >
           {file.path}
         </span>
