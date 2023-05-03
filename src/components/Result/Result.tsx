@@ -127,11 +127,11 @@ export const Result: React.FC<ResultProps> = memo(
             handleFileCollapse={toggleContentCollapse}
           />
         ) : (
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Please select files to view their content.
           </p>
         )}
       </div>
-    );
+    );    
   }
 );

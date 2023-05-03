@@ -31,7 +31,7 @@ export const RepositoryInput: React.FC<RepositoryInputProps> = ({
   }, [resetRepo]);
 
   return (
-    <div className="mb-4">
+    <div className="mb-4 text-gray-700 dark:text-gray-300">
       <label htmlFor="repo-url" className="block mb-2">
         GitHub Repository URL:
       </label>
@@ -41,7 +41,7 @@ export const RepositoryInput: React.FC<RepositoryInputProps> = ({
           id="repo-url"
           value={inputValue}
           onChange={handleInputChange}
-          className="border border-gray-300 rounded-l md:w-2/3 lg:w-1/3 w-full p-2"
+          className="border border-gray-300 dark:border-gray-700 rounded md:w-2/3 lg:w-1/3 w-full p-2"
           placeholder="https://github.com/owner/repo"
           aria-label="GitHub Repository URL"
         />

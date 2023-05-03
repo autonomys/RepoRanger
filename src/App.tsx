@@ -183,7 +183,7 @@ function App() {
   }, [files]);
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <Header />
       <main className="p-4">
         <div className="container mx-auto">
@@ -227,7 +227,7 @@ function App() {
               </div>
               {repo && (
                 <div className="md:col-span-2 min-h-[100vh]">
-                  <div className="bg-white shadow p-6 rounded min-h-full">
+                  <div className="bg-white dark:bg-gray-800 shadow p-6 rounded min-h-full">
                     <Result
                       files={selectedFiles}
                       repo={repo}

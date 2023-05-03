@@ -16,14 +16,14 @@ export const Branches: React.FC<BranchesProps> = memo(
     }
     return (
       <div className="mb-4">
-        <span className="block mb-2 text-sm font-medium text-gray-700">
+        <span className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
           Select Branch:
         </span>
         <div className="flex flex-wrap">
           {branches.map((branch, index) => (
             <label
               key={index}
-              className="flex items-center mr-4 mb-2 cursor-pointer text-sm font-medium"
+              className="flex items-center mr-4 mb-2 cursor-pointer text-sm font-medium dark:text-gray-300"
             >
               <input
                 type="radio"

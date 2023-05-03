@@ -12,12 +12,12 @@ export const CharacterCount: React.FC<CharacterCountProps> = ({
   const isCharLimitReached = totalCharCount > charLimit;
   return (
     <div className="mb-4">
-      <div className="font-semibold mb-2">
+      <div className="font-semibold mb-2 dark:text-gray-300">
         Total character count: {formatNumber(totalCharCount)} /{' '}
         {formatNumber(charLimit)}
       </div>
       <p
-        className={`text-red-500 font-semibold text-sm ${
+        className={`text-red-500 dark:text-red-400 font-semibold text-sm ${
           isCharLimitReached ? 'visible' : 'invisible'
         }`}
       >
