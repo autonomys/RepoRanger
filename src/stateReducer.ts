@@ -5,6 +5,7 @@ interface State {
   repo: string;
   isLoadingRepoFiles: boolean;
   isLoadingFileContents: boolean;
+  isLoadingRepoBranches: boolean;
   selectedBranch: string;
   branches: GithubBranch[];
   searchQuery: string;
@@ -19,6 +20,7 @@ export type Action =
   | { type: 'SET_REPO'; payload: string }
   | { type: 'SET_IS_LOADING_REPO_FILES'; payload: boolean }
   | { type: 'SET_IS_LOADING_FILE_CONTENTS'; payload: boolean }
+  | { type: 'SET_IS_LOADING_REPO_BRANCHES'; payload: boolean }
   | { type: 'SET_SELECTED_BRANCH'; payload: string }
   | {
     type: 'SET_BRANCHES';
@@ -67,6 +69,8 @@ export const reducer = (state: State, action: Action): State => {
       return { ...state, isLoadingRepoFiles: action.payload };
     case 'SET_IS_LOADING_FILE_CONTENTS':
       return { ...state, isLoadingFileContents: action.payload };
+    case 'SET_IS_LOADING_REPO_BRANCHES':
+      return { ...state, isLoadingRepoBranches: action.payload };
     case 'SET_SELECTED_BRANCH':
       return { ...state, selectedBranch: action.payload };
     case 'SET_BRANCHES':
@@ -98,6 +102,7 @@ export const reducer = (state: State, action: Action): State => {
 export const initialState: State = {
   files: [],
   repo: '',
+  isLoadingRepoBranches: false,
   isLoadingRepoFiles: false,
   isLoadingFileContents: false,
   selectedBranch: '',

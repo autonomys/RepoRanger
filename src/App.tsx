@@ -20,9 +20,10 @@ function App() {
     files,
     repo,
     isLoadingRepoFiles,
+    isLoadingFileContents,
+    isLoadingRepoBranches,
     selectedBranch,
     branches,
-    isLoadingFileContents,
     selectedExtensions,
     searchQuery,
     fileExtensions,
@@ -31,6 +32,7 @@ function App() {
   const fetchRepoBranches = useCallback(
     async (repo: string) => {
       try {
+        dispatch({ type: 'SET_IS_LOADING_REPO_BRANCHES', payload: true });
         const branches = await fetchBranches(repo).then((branches) =>
           branches.sort((a, b) => {
             // Sorting branches so that 'main' or 'master' always comes first
@@ -39,7 +41,6 @@ function App() {
             return a.name.localeCompare(b.name);
           })
         );
-
         dispatch({ type: 'SET_BRANCHES', payload: branches });
         dispatch({
           type: 'SET_SELECTED_BRANCH',
@@ -48,6 +49,8 @@ function App() {
       } catch (error) {
         console.error('Failed to fetch repository branches', error);
         alert('Failed to fetch repository branches');
+      } finally {
+        dispatch({ type: 'SET_IS_LOADING_REPO_BRANCHES', payload: false });
       }
     },
     [selectedBranch]
@@ -56,8 +59,20 @@ function App() {
   useEffect(() => {
     if (repo) {
       fetchRepoBranches(repo);
+      // Refetching branches every 6 seconds
       const interval = setInterval(async () => {
-        await fetchRepoBranches(repo);
+        await fetchBranches(repo)
+          .then((branches) =>
+            branches.sort((a, b) => {
+              // Sorting branches so that 'main' or 'master' always comes first
+              if (a.name === 'main' || a.name === 'master') return -1;
+              if (b.name === 'main' || b.name === 'master') return 1;
+              return a.name.localeCompare(b.name);
+            })
+          )
+          .then((branches) => {
+            dispatch({ type: 'SET_BRANCHES', payload: branches });
+          });
       }, 6000);
 
       return () => clearInterval(interval);
@@ -189,14 +204,15 @@ function App() {
         <div className="container mx-auto">
           <div>
             <RepositoryInput setRepo={setRepo} resetRepo={resetRepo} />
-            {repo && (
+            {isLoadingRepoBranches && <Loading />}
+            {!isLoadingRepoBranches && branches && (
               <Branches
                 branches={branches}
                 selectedBranch={selectedBranch}
                 selectBranch={selectBranch}
               />
             )}
-            {selectedBranchItem && (
+            {!isLoadingRepoBranches && selectedBranchItem && (
               <>
                 <LastCommit
                   commit={selectedBranchItem.lastCommit}
@@ -212,35 +228,37 @@ function App() {
                 />
               </>
             )}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="md:col-span-1">
-                {isLoadingRepoFiles ? (
-                  <Loading />
-                ) : repo ? (
-                  <FileList
-                    files={displayedFiles}
-                    toggleFileSelect={toggleFileSelect}
-                  />
-                ) : (
-                  <NoRepositorySelected />
+            {!isLoadingRepoBranches && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="md:col-span-1">
+                  {isLoadingRepoFiles ? (
+                    <Loading />
+                  ) : repo ? (
+                    <FileList
+                      files={displayedFiles}
+                      toggleFileSelect={toggleFileSelect}
+                    />
+                  ) : (
+                    <NoRepositorySelected />
+                  )}
+                </div>
+                {repo && (
+                  <div className="md:col-span-2 min-h-[100vh]">
+                    <div className="bg-white dark:bg-gray-800 shadow p-6 rounded min-h-full">
+                      <Result
+                        files={selectedFiles}
+                        repo={repo}
+                        branch={selectedBranch}
+                        isLoadingFileContents={isLoadingFileContents}
+                        clearFiles={clearFiles}
+                        setContentsLoading={setContentsLoading}
+                        toggleContentCollapse={toggleContentCollapse}
+                      />
+                    </div>
+                  </div>
                 )}
               </div>
-              {repo && (
-                <div className="md:col-span-2 min-h-[100vh]">
-                  <div className="bg-white dark:bg-gray-800 shadow p-6 rounded min-h-full">
-                    <Result
-                      files={selectedFiles}
-                      repo={repo}
-                      branch={selectedBranch}
-                      isLoadingFileContents={isLoadingFileContents}
-                      clearFiles={clearFiles}
-                      setContentsLoading={setContentsLoading}
-                      toggleContentCollapse={toggleContentCollapse}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
+            )}
           </div>
         </div>
       </main>
