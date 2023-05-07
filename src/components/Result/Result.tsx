@@ -15,6 +15,10 @@ interface ResultProps {
   clearFiles: () => void;
   setContentsLoading: (isLoading: boolean) => void;
   toggleContentCollapse: (path: string) => void;
+  showNotification: (
+    message: string,
+    type: 'error' | 'success'
+  ) => void;
 }
 
 export const Result: React.FC<ResultProps> = memo(
@@ -26,6 +30,7 @@ export const Result: React.FC<ResultProps> = memo(
     clearFiles,
     setContentsLoading,
     toggleContentCollapse,
+    showNotification,
   }) => {
     const [selectedFileContents, setSelectedFileContents] = useState<
       Map<string, string>
@@ -47,28 +52,24 @@ export const Result: React.FC<ResultProps> = memo(
         return;
       }
 
-      const promises: Promise<void>[] = [];
       const newSelectedFileContents = new Map(
         [...files].map(({ path }) => [path, ''])
       );
 
       setContentsLoading(true);
 
-      files.forEach(({ path }) => {
-        const promise = fetchFileContent(
-          repo,
-          branch,
-          path,
-          abortController.signal
-        )
+      const promises = files.map(({ path }) => {
+        return fetchFileContent(repo, branch, path, abortController.signal)
           .then(({ content }) => {
             newSelectedFileContents.set(path, content || '');
           })
           .catch((error) => {
             console.error(`Error fetching file content for ${path}:`, error);
-            alert(`Error fetching file content for ${path}`);
+            showNotification(
+              `Error fetching file content for ${path}`,
+              'error'
+            );
           });
-        promises.push(promise);
       });
 
       Promise.all(promises).then(() => {
@@ -79,7 +80,7 @@ export const Result: React.FC<ResultProps> = memo(
       return () => {
         abortController.abort();
       };
-    }, [repo, branch, setContentsLoading, files]);
+    }, [repo, branch, setContentsLoading, files, showNotification]);
 
     const handleDownload = () => {
       const fileContent = [...selectedFileContents.values()].join('\n\n');
@@ -132,6 +133,6 @@ export const Result: React.FC<ResultProps> = memo(
           </p>
         )}
       </div>
-    );    
+    );
   }
 );

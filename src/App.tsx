@@ -11,6 +11,7 @@ import {
   LastCommit,
   FileFilter,
   Header,
+  Notification,
 } from './components';
 import { reducer, initialState } from './stateReducer';
 
@@ -27,7 +28,21 @@ function App() {
     selectedExtensions,
     searchQuery,
     fileExtensions,
+    notification,
   } = state;
+
+  const showNotification = useCallback(
+    (message: string, type: 'success' | 'error') => {
+      dispatch({
+        type: 'SET_NOTIFICATION',
+        payload: {
+          message,
+          type,
+        },
+      });
+    },
+    []
+  );
 
   const fetchRepoBranches = useCallback(
     async (repo: string) => {
@@ -48,17 +63,19 @@ function App() {
         });
       } catch (error) {
         console.error('Failed to fetch repository branches', error);
-        alert('Failed to fetch repository branches');
+        showNotification(
+          'Failed to fetch repository branches',
+          'error'
+        );
       } finally {
         dispatch({ type: 'SET_IS_LOADING_REPO_BRANCHES', payload: false });
       }
     },
-    [selectedBranch]
+    [selectedBranch, showNotification]
   );
 
   useEffect(() => {
     if (repo) {
-      fetchRepoBranches(repo);
       // Refetching branches every 6 seconds
       const interval = setInterval(async () => {
         await fetchBranches(repo)
@@ -91,12 +108,15 @@ function App() {
 
           if (!isCancelled) {
             dispatch({ type: 'SET_FILES', payload: files });
-            dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
             dispatch({ type: 'SET_FILE_EXTENSIONS', payload: fileExtensions });
           }
         } catch (error) {
           console.error('Failed to fetch repository files', error);
-          alert('Failed to fetch repository files');
+          showNotification(
+            'Failed to fetch repository files',
+            'error'
+          );
+        } finally {
           dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
         }
       }
@@ -110,7 +130,7 @@ function App() {
       isCancelled = true;
       dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
     };
-  }, [repo, selectedBranch]);
+  }, [repo, selectedBranch, showNotification]);
 
   const toggleFileSelect = useCallback((path: string) => {
     dispatch({ type: 'TOGGLE_SELECT_FILE', payload: path });
@@ -124,10 +144,13 @@ function App() {
     dispatch({ type: 'RESET_REPO' });
   }, []);
 
-  const setRepo = useCallback((repo: string) => {
-    dispatch({ type: 'RESET_REPO' });
-    dispatch({ type: 'SET_REPO', payload: repo });
-  }, []);
+  const setRepo = useCallback(
+    (repo: string) => {
+      dispatch({ type: 'SET_REPO', payload: repo });
+      fetchRepoBranches(repo);
+    },
+    [fetchRepoBranches]
+  );
 
   const selectBranch = useCallback((branch: string) => {
     dispatch({ type: 'SET_SELECTED_BRANCH', payload: branch });
@@ -199,6 +222,13 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+      {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => dispatch({ type: 'CLEAR_NOTIFICATION' })}
+        />
+      )}
       <Header />
       <main className="p-4">
         <div className="container mx-auto">
@@ -253,6 +283,7 @@ function App() {
                         clearFiles={clearFiles}
                         setContentsLoading={setContentsLoading}
                         toggleContentCollapse={toggleContentCollapse}
+                        showNotification={showNotification}
                       />
                     </div>
                   </div>
