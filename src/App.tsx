@@ -29,6 +29,8 @@ function App() {
     searchQuery,
     fileExtensions,
     notification,
+    loadRepoBranchesError,
+    loadRepoFilesError,
   } = state;
 
   const showNotification = useCallback(
@@ -61,12 +63,18 @@ function App() {
           type: 'SET_SELECTED_BRANCH',
           payload: selectedBranch ? selectedBranch : branches[0].name,
         });
+        dispatch({
+          type: 'SET_LOAD_REPO_BRANCHES_ERROR',
+          payload: null,
+        });
       } catch (error) {
-        console.error('Failed to fetch repository branches', error);
-        showNotification(
-          'Failed to fetch repository branches',
-          'error'
-        );
+        const errorMessage = 'Failed to fetch repository branches';
+        console.error(errorMessage, error);
+        dispatch({
+          type: 'SET_LOAD_REPO_BRANCHES_ERROR',
+          payload: errorMessage,
+        });
+        showNotification(errorMessage, 'error');
       } finally {
         dispatch({ type: 'SET_IS_LOADING_REPO_BRANCHES', payload: false });
       }
@@ -89,12 +97,25 @@ function App() {
           )
           .then((branches) => {
             dispatch({ type: 'SET_BRANCHES', payload: branches });
+            dispatch({
+              type: 'SET_LOAD_REPO_BRANCHES_ERROR',
+              payload: null,
+            });
+          })
+          .catch((error) => {
+            const errorMessage = 'Failed to fetch repository branches';
+            console.error(errorMessage, error);
+            dispatch({
+              type: 'SET_LOAD_REPO_BRANCHES_ERROR',
+              payload: errorMessage,
+            });
+            showNotification(errorMessage, 'error');
           });
       }, 6000);
 
       return () => clearInterval(interval);
     }
-  }, [fetchRepoBranches, repo]);
+  }, [fetchRepoBranches, repo, showNotification]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -111,11 +132,13 @@ function App() {
             dispatch({ type: 'SET_FILE_EXTENSIONS', payload: fileExtensions });
           }
         } catch (error) {
-          console.error('Failed to fetch repository files', error);
-          showNotification(
-            'Failed to fetch repository files',
-            'error'
-          );
+          const errorMessage = 'Failed to fetch repository files';
+          console.error(errorMessage, error);
+          dispatch({
+            type: 'SET_LOAD_REPO_FILES_ERROR',
+            payload: errorMessage,
+          });
+          showNotification(errorMessage, 'error');
         } finally {
           dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
         }
@@ -130,7 +153,7 @@ function App() {
       isCancelled = true;
       dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
     };
-  }, [repo, selectedBranch, showNotification]);
+  }, [repo, selectedBranch, showNotification, loadRepoFilesError]);
 
   const toggleFileSelect = useCallback((path: string) => {
     dispatch({ type: 'TOGGLE_SELECT_FILE', payload: path });
@@ -146,6 +169,7 @@ function App() {
 
   const setRepo = useCallback(
     (repo: string) => {
+      dispatch({ type: 'RESET_REPO' });
       dispatch({ type: 'SET_REPO', payload: repo });
       fetchRepoBranches(repo);
     },
@@ -220,13 +244,22 @@ function App() {
     return files.filter((file) => file.isSelected);
   }, [files]);
 
+  const handleNotificationClose = useCallback(() => {
+    dispatch({ type: 'CLEAR_NOTIFICATION' });
+  }, []);
+
+  const hasErrors = loadRepoBranchesError || loadRepoFilesError;
+  const hasBranches = !hasErrors && branches.length > 0;
+  const hasSelectedBranch = !hasErrors && selectedBranchItem;
+  const hasFiles = repo && !hasErrors && displayedFiles.length > 0;
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       {notification && (
         <Notification
           message={notification.message}
           type={notification.type}
-          onClose={() => dispatch({ type: 'CLEAR_NOTIFICATION' })}
+          onClose={handleNotificationClose}
         />
       )}
       <Header />
@@ -235,14 +268,14 @@ function App() {
           <div>
             <RepositoryInput setRepo={setRepo} resetRepo={resetRepo} />
             {isLoadingRepoBranches && <Loading />}
-            {!isLoadingRepoBranches && branches && (
+            {hasBranches && (
               <Branches
                 branches={branches}
                 selectedBranch={selectedBranch}
                 selectBranch={selectBranch}
               />
             )}
-            {!isLoadingRepoBranches && selectedBranchItem && (
+            {hasSelectedBranch && (
               <>
                 <LastCommit
                   commit={selectedBranchItem.lastCommit}
@@ -263,7 +296,7 @@ function App() {
                 <div className="md:col-span-1">
                   {isLoadingRepoFiles ? (
                     <Loading />
-                  ) : repo ? (
+                  ) : hasFiles ? (
                     <FileList
                       files={displayedFiles}
                       toggleFileSelect={toggleFileSelect}
@@ -272,7 +305,7 @@ function App() {
                     <NoRepositorySelected />
                   )}
                 </div>
-                {repo && (
+                {hasFiles && (
                   <div className="md:col-span-2 min-h-[100vh]">
                     <div className="bg-white dark:bg-gray-800 shadow p-6 rounded min-h-full">
                       <Result
