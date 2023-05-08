@@ -3,7 +3,7 @@ import { fetchAllFiles } from '../api';
 import { GitHubFile, Notification } from '../types';
 import { getFileExtensions } from '../utils';
 
-export function useFiles(repo: string, selectedBranch: string | undefined, setNotification: (n: Notification) => void) {
+export function useFiles(repo: string, selectedBranch: string | undefined, lastCommit: string | undefined, setNotification: (n: Notification) => void) {
   const [files, setFiles] = useState<GitHubFile[]>([]);
   const [fileExtensions, setFileExtensions] = useState<string[]>([]);
   const [isLoadingRepoFiles, setIsLoadingRepoFiles] = useState(false);
@@ -48,7 +48,7 @@ export function useFiles(repo: string, selectedBranch: string | undefined, setNo
       isCancelled = true;
       setIsLoadingRepoFiles(false);
     };
-  }, [repo, selectedBranch, loadRepoFilesError, setNotification]);
+  }, [repo, selectedBranch, loadRepoFilesError, lastCommit, setNotification]);
 
   const toggleFileSelect = (filePath: string) => {
     setFiles((files) =>

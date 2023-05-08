@@ -75,7 +75,7 @@ export function useBranches(repoUrl: string, setNotification: (n: Notification) 
   }, [fetchRepoBranches, repoUrl, setNotification]);
 
   const selectedBranchItem = branches.find(
-    (branch: any) => branch.name === selectedBranch
+    (branch: GithubBranch) => branch.name === selectedBranch
   );
 
   return {
@@ -85,5 +85,6 @@ export function useBranches(repoUrl: string, setNotification: (n: Notification) 
     error,
     selectBranch,
     loadRepoBranchesError: error,
+    lastCommit: selectedBranchItem?.lastCommit.hash,
   };
 }

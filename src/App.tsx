@@ -24,6 +24,7 @@ function App() {
     selectedBranch,
     loadRepoBranchesError,
     selectBranch,
+    lastCommit,
   } = useBranches(repo, setNotification);
 
   const {
@@ -35,7 +36,7 @@ function App() {
     selectedFiles,
     toggleContentCollapse,
     clearSelectedFiles,
-  } = useFiles(repo, selectedBranch?.name, setNotification);
+  } = useFiles(repo, selectedBranch?.name, lastCommit, setNotification);
 
   const {
     searchQuery,
@@ -55,8 +56,8 @@ function App() {
   } = useResult(selectedFiles, repo, selectedBranch?.name!, setNotification);
 
   const hasErrors = loadRepoBranchesError || loadRepoFilesError;
-  const hasBranches = !hasErrors && branches.length > 0;
-  const hasSelectedBranch = !hasErrors && selectedBranch;
+  const hasBranches = repo && !hasErrors && branches.length > 0;
+  const hasSelectedBranch = repo && !hasErrors && selectedBranch;
   const hasFiles = repo && !hasErrors && files.length > 0;
 
   return (
