@@ -1,3 +1,5 @@
+import { CloseIcon, ExclamationIcon, CheckIcon } from './icons';
+
 interface NotificationProps {
   message: string;
   type: string;
@@ -15,9 +17,21 @@ export const Notification: React.FC<NotificationProps> = ({
     }
   };
 
+  const isError = type === 'error';
+
   return (
     <div className="fixed top-4 right-4 p-4 bg-blue-500 text-white rounded-lg shadow-md flex items-center space-x-4 z-50">
-      <div className="flex-shrink-0">{type}</div>
+      <div className="flex-shrink">
+        {isError ? (
+          <div className="text-red-600">
+            <ExclamationIcon />
+          </div>
+        ) : (
+          <div className="text-green-600">
+            <CheckIcon />
+          </div>
+        )}
+      </div>
       <div>
         <h3 className="font-semibold">{type.toLocaleUpperCase()}</h3>
         <p className="text-sm">{message}</p>
@@ -26,7 +40,7 @@ export const Notification: React.FC<NotificationProps> = ({
         className="p-1 hover:bg-blue-700 rounded focus:outline-none"
         onClick={handleClose}
       >
-        close
+        <CloseIcon />
       </button>
     </div>
   );
