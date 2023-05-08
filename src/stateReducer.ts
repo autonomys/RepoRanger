@@ -11,6 +11,13 @@ interface State {
   searchQuery: string;
   fileExtensions: string[];
   selectedExtensions: string[];
+  notification: null | {
+    message: string;
+    type: 'success' | 'error';
+  },
+  loadRepoBranchesError: null | string,
+  loadRepoFilesError: null | string,
+  loadFileContentsError: null | string,
 }
 
 export type Action =
@@ -31,7 +38,13 @@ export type Action =
   | { type: 'SET_FILE_EXTENSIONS'; payload: string[] }
   | { type: 'TOGGLE_SELECT_FILE'; payload: string }
   | { type: 'TOGGLE_CONTENT_COLLAPSE'; payload: string }
-  | { type: 'CLEAR_SELECTED_FILES' };
+  | { type: 'CLEAR_SELECTED_FILES' }
+  | { type: 'SET_NOTIFICATION'; payload: State['notification'] }
+  | { type: 'CLEAR_NOTIFICATION' }
+  | { type: 'SET_LOAD_REPO_BRANCHES_ERROR'; payload: string | null }
+  | { type: 'SET_LOAD_REPO_FILES_ERROR'; payload: string | null }
+  | { type: 'SET_LOAD_FILE_CONTENTS_ERROR'; payload: string | null }
+  ;
 
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -94,6 +107,16 @@ export const reducer = (state: State, action: Action): State => {
       };
     case 'CLEAR_SELECTED_FILES':
       return { ...state, files: state.files.map((file) => ({ ...file, isSelected: false, isCollapsed: false })) };
+    case 'SET_NOTIFICATION':
+      return { ...state, notification: action.payload };
+    case 'CLEAR_NOTIFICATION':
+      return { ...state, notification: null };
+    case 'SET_LOAD_REPO_BRANCHES_ERROR':
+      return { ...state, loadRepoBranchesError: action.payload };
+    case 'SET_LOAD_REPO_FILES_ERROR':
+      return { ...state, loadRepoFilesError: action.payload };
+    case 'SET_LOAD_FILE_CONTENTS_ERROR':
+      return { ...state, loadFileContentsError: action.payload };
     default:
       return state;
   }
@@ -110,4 +133,8 @@ export const initialState: State = {
   selectedExtensions: [],
   searchQuery: '',
   fileExtensions: [],
+  notification: null,
+  loadRepoBranchesError: null,
+  loadRepoFilesError: null,
+  loadFileContentsError: null,
 };

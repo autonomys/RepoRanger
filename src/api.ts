@@ -75,6 +75,7 @@ export const fetchBranches = async (repo: string): Promise<GithubBranch[]> => {
   }
 
   const data = await response.json();
+
   if (!Array.isArray(data)) {
     throw new Error('Unexpected response format from GitHub API');
   }

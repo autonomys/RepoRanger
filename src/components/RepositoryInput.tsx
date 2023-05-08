@@ -11,22 +11,26 @@ export const RepositoryInput: React.FC<RepositoryInputProps> = ({
   resetRepo,
 }) => {
   const [inputValue, setInputValue] = useState('');
+  const [error, setError] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
+    setError('');
   };
 
   const handleSubmit = useCallback(() => {
     const repoMatch = inputValue.match(/github.com\/(.+\/.+)(\/|$)/i);
     if (repoMatch && repoMatch[1]) {
       setRepo(repoMatch[1]);
+      setError('');
     } else {
-      alert('Invalid GitHub repository URL.');
+      setError('Invalid GitHub repository URL');
     }
   }, [inputValue, setRepo]);
 
   const handleResetClick = useCallback(() => {
     setInputValue('');
+    setError('');
     resetRepo();
   }, [resetRepo]);
 
@@ -41,7 +45,9 @@ export const RepositoryInput: React.FC<RepositoryInputProps> = ({
           id="repo-url"
           value={inputValue}
           onChange={handleInputChange}
-          className="border border-gray-300 dark:border-gray-700 rounded md:w-2/3 lg:w-1/3 w-full p-2"
+          className={`border ${
+            error ? 'border-red-600' : 'border-gray-300 dark:border-gray-700'
+          } rounded md:w-2/3 lg:w-1/3 w-full p-2`}
           placeholder="https://github.com/owner/repo"
           aria-label="GitHub Repository URL"
         />
@@ -53,6 +59,9 @@ export const RepositoryInput: React.FC<RepositoryInputProps> = ({
             Reset
           </Button>
         )}
+      </div>
+      <div className="mt-2" style={{ minHeight: '1.5em' }}>
+        {error && <p className="text-red-600 m-0">{error}</p>}
       </div>
     </div>
   );

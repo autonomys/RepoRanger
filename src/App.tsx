@@ -11,6 +11,7 @@ import {
   LastCommit,
   FileFilter,
   Header,
+  Notification,
 } from './components';
 import { reducer, initialState } from './stateReducer';
 
@@ -27,7 +28,23 @@ function App() {
     selectedExtensions,
     searchQuery,
     fileExtensions,
+    notification,
+    loadRepoBranchesError,
+    loadRepoFilesError,
   } = state;
+
+  const showNotification = useCallback(
+    (message: string, type: 'success' | 'error') => {
+      dispatch({
+        type: 'SET_NOTIFICATION',
+        payload: {
+          message,
+          type,
+        },
+      });
+    },
+    []
+  );
 
   const fetchRepoBranches = useCallback(
     async (repo: string) => {
@@ -46,19 +63,27 @@ function App() {
           type: 'SET_SELECTED_BRANCH',
           payload: selectedBranch ? selectedBranch : branches[0].name,
         });
+        dispatch({
+          type: 'SET_LOAD_REPO_BRANCHES_ERROR',
+          payload: null,
+        });
       } catch (error) {
-        console.error('Failed to fetch repository branches', error);
-        alert('Failed to fetch repository branches');
+        const errorMessage = 'Failed to fetch repository branches';
+        console.error(errorMessage, error);
+        dispatch({
+          type: 'SET_LOAD_REPO_BRANCHES_ERROR',
+          payload: errorMessage,
+        });
+        showNotification(errorMessage, 'error');
       } finally {
         dispatch({ type: 'SET_IS_LOADING_REPO_BRANCHES', payload: false });
       }
     },
-    [selectedBranch]
+    [selectedBranch, showNotification]
   );
 
   useEffect(() => {
     if (repo) {
-      fetchRepoBranches(repo);
       // Refetching branches every 6 seconds
       const interval = setInterval(async () => {
         await fetchBranches(repo)
@@ -72,12 +97,25 @@ function App() {
           )
           .then((branches) => {
             dispatch({ type: 'SET_BRANCHES', payload: branches });
+            dispatch({
+              type: 'SET_LOAD_REPO_BRANCHES_ERROR',
+              payload: null,
+            });
+          })
+          .catch((error) => {
+            const errorMessage = 'Failed to fetch repository branches';
+            console.error(errorMessage, error);
+            dispatch({
+              type: 'SET_LOAD_REPO_BRANCHES_ERROR',
+              payload: errorMessage,
+            });
+            showNotification(errorMessage, 'error');
           });
       }, 6000);
 
       return () => clearInterval(interval);
     }
-  }, [fetchRepoBranches, repo]);
+  }, [fetchRepoBranches, repo, showNotification]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -91,12 +129,17 @@ function App() {
 
           if (!isCancelled) {
             dispatch({ type: 'SET_FILES', payload: files });
-            dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
             dispatch({ type: 'SET_FILE_EXTENSIONS', payload: fileExtensions });
           }
         } catch (error) {
-          console.error('Failed to fetch repository files', error);
-          alert('Failed to fetch repository files');
+          const errorMessage = 'Failed to fetch repository files';
+          console.error(errorMessage, error);
+          dispatch({
+            type: 'SET_LOAD_REPO_FILES_ERROR',
+            payload: errorMessage,
+          });
+          showNotification(errorMessage, 'error');
+        } finally {
           dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
         }
       }
@@ -110,7 +153,7 @@ function App() {
       isCancelled = true;
       dispatch({ type: 'SET_IS_LOADING_REPO_FILES', payload: false });
     };
-  }, [repo, selectedBranch]);
+  }, [repo, selectedBranch, showNotification, loadRepoFilesError]);
 
   const toggleFileSelect = useCallback((path: string) => {
     dispatch({ type: 'TOGGLE_SELECT_FILE', payload: path });
@@ -124,10 +167,14 @@ function App() {
     dispatch({ type: 'RESET_REPO' });
   }, []);
 
-  const setRepo = useCallback((repo: string) => {
-    dispatch({ type: 'RESET_REPO' });
-    dispatch({ type: 'SET_REPO', payload: repo });
-  }, []);
+  const setRepo = useCallback(
+    (repo: string) => {
+      dispatch({ type: 'RESET_REPO' });
+      dispatch({ type: 'SET_REPO', payload: repo });
+      fetchRepoBranches(repo);
+    },
+    [fetchRepoBranches]
+  );
 
   const selectBranch = useCallback((branch: string) => {
     dispatch({ type: 'SET_SELECTED_BRANCH', payload: branch });
@@ -197,22 +244,38 @@ function App() {
     return files.filter((file) => file.isSelected);
   }, [files]);
 
+  const handleNotificationClose = useCallback(() => {
+    dispatch({ type: 'CLEAR_NOTIFICATION' });
+  }, []);
+
+  const hasErrors = loadRepoBranchesError || loadRepoFilesError;
+  const hasBranches = !hasErrors && branches.length > 0;
+  const hasSelectedBranch = !hasErrors && selectedBranchItem;
+  const hasFiles = repo && !hasErrors && displayedFiles.length > 0;
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+      {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={handleNotificationClose}
+        />
+      )}
       <Header />
       <main className="p-4">
         <div className="container mx-auto">
           <div>
             <RepositoryInput setRepo={setRepo} resetRepo={resetRepo} />
             {isLoadingRepoBranches && <Loading />}
-            {!isLoadingRepoBranches && branches && (
+            {hasBranches && (
               <Branches
                 branches={branches}
                 selectedBranch={selectedBranch}
                 selectBranch={selectBranch}
               />
             )}
-            {!isLoadingRepoBranches && selectedBranchItem && (
+            {hasSelectedBranch && (
               <>
                 <LastCommit
                   commit={selectedBranchItem.lastCommit}
@@ -233,7 +296,7 @@ function App() {
                 <div className="md:col-span-1">
                   {isLoadingRepoFiles ? (
                     <Loading />
-                  ) : repo ? (
+                  ) : hasFiles ? (
                     <FileList
                       files={displayedFiles}
                       toggleFileSelect={toggleFileSelect}
@@ -242,7 +305,7 @@ function App() {
                     <NoRepositorySelected />
                   )}
                 </div>
-                {repo && (
+                {hasFiles && (
                   <div className="md:col-span-2 min-h-[100vh]">
                     <div className="bg-white dark:bg-gray-800 shadow p-6 rounded min-h-full">
                       <Result
@@ -253,6 +316,7 @@ function App() {
                         clearFiles={clearFiles}
                         setContentsLoading={setContentsLoading}
                         toggleContentCollapse={toggleContentCollapse}
+                        showNotification={showNotification}
                       />
                     </div>
                   </div>
