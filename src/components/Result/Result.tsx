@@ -98,7 +98,7 @@ export const Result: React.FC<ResultProps> = memo(
     const handleCopy = () => {
       const fileContent = [...selectedFileContents.values()].join('\n\n');
       navigator.clipboard.writeText(fileContent).then(() => {
-        alert('Contents copied to clipboard.');
+        showNotification('Contents copied to clipboard.', 'success');
       });
     };
 
