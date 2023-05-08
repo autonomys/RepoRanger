@@ -40,12 +40,6 @@ export function useBranches(repoUrl: string, setNotification: (n: Notification) 
 
   useEffect(() => {
     if (repoUrl) {
-      fetchRepoBranches(repoUrl);
-    }
-  }, [repoUrl, fetchRepoBranches]);
-
-  useEffect(() => {
-    if (repoUrl) {
       // Refetching branches every 6 seconds
       const interval = setInterval(() => {
         setError(null);
@@ -72,10 +66,10 @@ export function useBranches(repoUrl: string, setNotification: (n: Notification) 
 
       return () => clearInterval(interval);
     }
-  }, [fetchRepoBranches, repoUrl, setNotification]);
+  }, [repoUrl, setNotification]);
 
   const selectedBranchItem = branches.find(
-    (branch: any) => branch.name === selectedBranch
+    (branch: GithubBranch) => branch.name === selectedBranch
   );
 
   return {
@@ -85,5 +79,7 @@ export function useBranches(repoUrl: string, setNotification: (n: Notification) 
     error,
     selectBranch,
     loadRepoBranchesError: error,
+    lastCommit: selectedBranchItem?.lastCommit.hash,
+    fetchRepoBranches,
   };
 }
