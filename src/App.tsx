@@ -15,7 +15,7 @@ import { useBranches, useFiles, useFileFilter, useResult } from './hooks';
 import { Notification as INotification } from './types';
 
 function App() {
-  const [repo, setRepo] = useState<string>('');
+  const [repoName, setRepoName] = useState<string>('');
   const [notification, setNotification] = useState<INotification | null>(null);
 
   const {
@@ -25,7 +25,8 @@ function App() {
     loadRepoBranchesError,
     selectBranch,
     lastCommit,
-  } = useBranches(repo, setNotification);
+    fetchRepoBranches,
+  } = useBranches(repoName, setNotification);
 
   const {
     isLoadingRepoFiles,
@@ -36,7 +37,7 @@ function App() {
     selectedFiles,
     toggleContentCollapse,
     clearSelectedFiles,
-  } = useFiles(repo, selectedBranch?.name, lastCommit, setNotification);
+  } = useFiles(repoName, selectedBranch?.name, lastCommit, setNotification);
 
   const {
     searchQuery,
@@ -53,12 +54,22 @@ function App() {
     handleCopy,
     handleDownload,
     selectedFileContents,
-  } = useResult(selectedFiles, repo, selectedBranch?.name!, setNotification);
+  } = useResult(
+    selectedFiles,
+    repoName,
+    selectedBranch?.name!,
+    setNotification
+  );
 
   const hasErrors = loadRepoBranchesError || loadRepoFilesError;
-  const hasBranches = repo && !hasErrors && branches.length > 0;
-  const hasSelectedBranch = repo && !hasErrors && selectedBranch;
-  const hasFiles = repo && !hasErrors && files.length > 0;
+  const hasBranches = repoName && !hasErrors && branches.length > 0;
+  const hasSelectedBranch = repoName && !hasErrors && selectedBranch;
+  const hasFiles = repoName && !hasErrors && files.length > 0;
+
+  const setRepo = (repo: string) => {
+    setRepoName(repo);
+    fetchRepoBranches(repo);
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -73,7 +84,10 @@ function App() {
       <main className="p-4">
         <div className="container mx-auto">
           <div>
-            <RepositoryInput setRepo={setRepo} resetRepo={() => setRepo('')} />
+            <RepositoryInput
+              setRepo={setRepo}
+              resetRepo={() => setRepoName('')}
+            />
             {isLoadingRepoBranches && <Loading />}
             {hasBranches && (
               <Branches
@@ -84,7 +98,10 @@ function App() {
             )}
             {hasSelectedBranch && (
               <>
-                <LastCommit commit={selectedBranch.lastCommit} repo={repo} />
+                <LastCommit
+                  commit={selectedBranch.lastCommit}
+                  repo={repoName}
+                />
                 <FileFilter
                   value={searchQuery}
                   setSearchQuery={setSearchQuery}
