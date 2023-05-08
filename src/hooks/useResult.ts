@@ -32,29 +32,32 @@ export function useResult(files: GitHubFile[], repo: string, branchName: string,
       [...files].map(({ path }) => [path, ''])
     );
 
-    setContentsLoading(true);
+    if (repo && branchName) {
 
-    const promises = files.map(({ path }) => {
-      setLoadFileContentsError(null);
-      return fetchFileContent(repo, branchName!, path, abortController.signal)
-        .then(({ content }) => {
-          newSelectedFileContents.set(path, content || '');
-        })
-        .catch((error) => {
-          const errorMessage = `Error fetching file content for ${path}`;
-          console.error(`${errorMessage}:`, error);
-          setLoadFileContentsError(errorMessage);
-          setNotification({
-            message: errorMessage,
-            type: 'error',
+      setContentsLoading(true);
+
+      const promises = files.map(({ path }) => {
+        setLoadFileContentsError(null);
+        return fetchFileContent(repo, branchName!, path, abortController.signal)
+          .then(({ content }) => {
+            newSelectedFileContents.set(path, content || '');
+          })
+          .catch((error) => {
+            const errorMessage = `Error fetching file content for ${path}`;
+            console.error(`${errorMessage}:`, error);
+            setLoadFileContentsError(errorMessage);
+            setNotification({
+              message: errorMessage,
+              type: 'error',
+            });
           });
-        });
-    });
+      });
 
-    Promise.all(promises).then(() => {
-      setSelectedFileContents(newSelectedFileContents);
-      setContentsLoading(false);
-    });
+      Promise.all(promises).then(() => {
+        setSelectedFileContents(newSelectedFileContents);
+        setContentsLoading(false);
+      });
+    }
 
     return () => {
       abortController.abort();
