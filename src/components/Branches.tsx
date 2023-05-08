@@ -1,11 +1,9 @@
 import { memo, ChangeEvent } from 'react';
+import { GithubBranch } from '../types';
 
 interface BranchesProps {
-  branches: {
-    name: string;
-    lastCommit: { hash: string; message: string; timestamp: string };
-  }[];
-  selectedBranch: string;
+  branches: GithubBranch[];
+  selectedBranch: GithubBranch | undefined;
   selectBranch: (branch: string) => void;
 }
 
@@ -29,7 +27,7 @@ export const Branches: React.FC<BranchesProps> = memo(
                 type="radio"
                 name="branch"
                 value={branch.name}
-                checked={selectedBranch === branch.name}
+                checked={selectedBranch?.name === branch.name}
                 onChange={handleBranchChange}
                 className="text-blue-500 mr-2"
               />
