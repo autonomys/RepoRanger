@@ -71,6 +71,13 @@ function App() {
     fetchRepoBranches(repo);
   };
 
+  const resetRepo = () => {
+    setRepoName('');
+    setNotification(null);
+    clearFileFilters();
+    clearSelectedFiles();
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       {notification && (
@@ -86,7 +93,7 @@ function App() {
           <div>
             <RepositoryInput
               setRepo={setRepo}
-              resetRepo={() => setRepoName('')}
+              resetRepo={resetRepo}
             />
             {isLoadingRepoBranches && <Loading />}
             {hasBranches && (

@@ -33,7 +33,6 @@ export function useResult(files: GitHubFile[], repo: string, branchName: string,
     );
 
     if (repo && branchName) {
-
       setContentsLoading(true);
 
       const promises = files.map(({ path }) => {
