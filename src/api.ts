@@ -1,100 +1,110 @@
+import { Octokit } from "@octokit/core";
 import { GitHubFile, GithubBranch } from './types';
 
-const options = {
-  headers: {
-    Authorization: `Bearer ${process.env.REACT_APP_GITHUB_TOKEN}`,
-    'Content-Type': 'application/json',
+const octokit = new Octokit({ auth: process.env.REACT_APP_GITHUB_TOKEN });
+
+type GithubFileContentResponse = {
+  content: string;
+  encoding: string;
+  size: number;
+  [key: string]: any;
+};
+
+type GithubBranchResponse = {
+  name: string;
+  commit: {
+    sha: string;
   }
-}
+}[];
 
-export const fetchAllFiles = async (repo: string, branch: string, signal?: AbortSignal): Promise<GitHubFile[]> => {
-  const recursiveQueryParam = '?recursive=1';
-  const url = `https://api.github.com/repos/${repo}/git/trees/${branch}${recursiveQueryParam}`;
-  const response = await fetch(url, { ...options, signal });
-
-  if (!response.ok) {
-    throw new Error(
-      `Error fetching files: ${response.status} ${response.statusText}`
-    );
+type GithubCommitResponse = {
+  sha: string;
+  commit: {
+    message: string;
+    author: {
+      date: string;
+    }
   }
+};
 
-  const data = (await response.json()).tree;
-  if (!Array.isArray(data)) {
+export const fetchAllFiles = async (repoName: string, branch: string, signal?: AbortSignal): Promise<GitHubFile[]> => {
+  const [owner, repo] = repoName.split('/');
+  const { data } = await octokit.request('GET /repos/{owner}/{repo}/git/trees/{tree_sha}', {
+    owner,
+    repo,
+    tree_sha: branch,
+    recursive: '1',
+    request: { signal },
+  });
+
+  if (!Array.isArray(data.tree)) {
     throw new Error('Unexpected response format from GitHub API');
   }
 
-  const files: GitHubFile[] = data
+  const files: GitHubFile[] = data.tree
     .filter((file) => file.type === 'blob')
-    .map((file, index) => ({
-      name: file.path.split('/').pop() || '',
-      path: file.path,
-      index,
-      isSelected: false,
-      isCollapsed: false,
-    }));
+    .map((file, index) => {
+      const path = file.path || '';
+      return {
+        name: path?.split('/').pop() || '',
+        path: path,
+        index,
+        isSelected: false,
+        isCollapsed: false,
+      }
+    });
 
   return files;
 };
 
 export const fetchFileContent = async (
-  repo: string,
+  repoName: string,
   branch: string,
   path: string,
-  signal?: AbortSignal
-): Promise<{ content: string; size: number; encoding: string }> => {
-  const url = `https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`;
-  const response = await fetch(url, { ...options, signal });
+  signal?: AbortSignal,
+): Promise<{ content: string; size: number; }> => {
+  const [owner, repo] = repoName.split('/');
+  const { data } = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
+    owner,
+    repo,
+    path,
+    ref: branch,
+    request: { signal }
+  });
 
-  if (!response.ok) {
-    throw new Error(
-      `Error fetching file content: ${response.status} ${response.statusText}`
-    );
+  const responseData = data as GithubFileContentResponse;
+  if (responseData.encoding !== 'base64') {
+    throw new Error('Unexpected encoding format from GitHub API');
   }
 
-  const json = await response.json();
-  if (Array.isArray(json) || !json.content || !json.size) {
-    throw new Error('Unexpected response format from GitHub API');
-  }
-
-  try {
-    const content = atob(json.content);
-    const size = json.size;
-    const encoding = 'base64'; // Hardcoded for now, but could be updated if other encoding formats are used in the future
-    return { content, size, encoding };
-  } catch (error) {
-    throw new Error('Failed to decode file content: Invalid base64-encoded string');
-  }
+  return { content: atob(responseData.content), size: responseData.size };
 };
 
-export const fetchBranches = async (repo: string): Promise<GithubBranch[]> => {
-  const url = `https://api.github.com/repos/${repo}/branches`;
-  const response = await fetch(url, options);
+export const fetchBranches = async (repoName: string, signal?: AbortSignal): Promise<GithubBranch[]> => {
+  const [owner, repo] = repoName.split('/');
+  const { data } = await octokit.request('GET /repos/{owner}/{repo}/branches', {
+    owner,
+    repo,
+    request: { signal }
+  });
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch branches');
-  }
+  const branchesData = data as GithubBranchResponse;
 
-  const data = await response.json();
+  const branchPromises = branchesData.map(async (branch) => {
+    const { data: commitData } = await octokit.request('GET /repos/{owner}/{repo}/commits/{ref}', {
+      owner,
+      repo,
+      ref: branch.commit.sha,
+    });
 
-  if (!Array.isArray(data)) {
-    throw new Error('Unexpected response format from GitHub API');
-  }
+    const commitResponse = commitData as GithubCommitResponse;
 
-  const branchPromises = data.map(async (branch) => {
-    const commitUrl = `https://api.github.com/repos/${repo}/commits/${branch.commit.sha}`;
-    const commitResponse = await fetch(commitUrl, options);
-
-    if (!commitResponse.ok) {
-      throw new Error('Failed to fetch last commit for branch');
-    }
-
-    const commitData = await commitResponse.json();
     return {
       name: branch.name,
       lastCommit: {
-        hash: commitData.sha,
-        message: commitData.commit.message,
-        timestamp: commitData.commit.author.date,
+        hash: commitResponse.sha,
+        message: commitResponse.commit.message,
+        timestamp: commitResponse.commit.author?.date || '',
       },
     };
   });
