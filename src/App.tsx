@@ -10,9 +10,11 @@ import {
   FileFilter,
   Header,
   Notification,
+  Button,
 } from './components';
 import { useBranches, useFiles, useFileFilter, useResult } from './hooks';
 import { Notification as INotification } from './types';
+import { useLangchain } from './hooks/useLangchain';
 
 function App() {
   const [repoName, setRepoName] = useState<string>('');
@@ -61,6 +63,21 @@ function App() {
     setNotification
   );
 
+  const {
+    submit,
+    response,
+    isLoadingLangchain,
+    submitPromptError,
+    prompt,
+    setPrompt,
+  } = useLangchain();
+
+  console.log({
+    isLoadingLangchain,
+    submitPromptError,
+    response,
+  });
+
   const hasErrors = loadRepoBranchesError || loadRepoFilesError;
   const hasBranches = repoName && !hasErrors && branches.length > 0;
   const hasSelectedBranch = repoName && !hasErrors && selectedBranch;
@@ -78,6 +95,11 @@ function App() {
     clearSelectedFiles();
   };
 
+  const handleSubmit = () => {
+    const fileContent = [...selectedFileContents.values()].join('\n\n');
+    submit(fileContent);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       {notification && (
@@ -91,10 +113,7 @@ function App() {
       <main className="p-4">
         <div className="container mx-auto">
           <div>
-            <RepositoryInput
-              setRepo={setRepo}
-              resetRepo={resetRepo}
-            />
+            <RepositoryInput setRepo={setRepo} resetRepo={resetRepo} />
             {isLoadingRepoBranches && <Loading />}
             {hasBranches && (
               <Branches
@@ -136,6 +155,14 @@ function App() {
                 {hasFiles && (
                   <div className="md:col-span-2 min-h-[100vh]">
                     <div className="bg-white dark:bg-gray-800 shadow p-6 rounded min-h-full">
+                      <div className="flex items-stretch gap-2 min-w-full mb-4">
+                        <input
+                          className="resize border rounded-md p-2 w-full"
+                          value={prompt}
+                          onChange={(e) => setPrompt(e.target.value)}
+                        />
+                        <Button onClick={handleSubmit}>Submit</Button>
+                      </div>
                       <Result
                         files={selectedFiles}
                         isLoadingFileContents={isLoadingFileContents}

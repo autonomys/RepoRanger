@@ -1,4 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import {
+  useState,
+  // useEffect,
+  useCallback
+} from 'react';
 import { fetchBranches } from '../api';
 import { GithubBranch, Notification } from '../types';
 
@@ -38,35 +42,35 @@ export function useBranches(repoUrl: string, setNotification: (n: Notification) 
     [selectedBranch, setNotification]
   );
 
-  useEffect(() => {
-    if (repoUrl) {
-      // Refetching branches every 6 seconds
-      const interval = setInterval(() => {
-        setError(null);
-        fetchBranches(repoUrl)
-          .then((branches) =>
-            branches.sort((a, b) => {
-              // Sorting branches so that 'main' or 'master' always comes first
-              if (a.name === 'main' || a.name === 'master') return -1;
-              if (b.name === 'main' || b.name === 'master') return 1;
-              return a.name.localeCompare(b.name);
-            })
-          )
-          .then((branches) => setBranches(branches))
-          .catch((error) => {
-            const errorMessage = 'Failed to fetch repository branches';
-            console.error(errorMessage, error);
-            setError(errorMessage);
-            setNotification({
-              message: errorMessage,
-              type: 'error',
-            });
-          });
-      }, 6000);
+  // useEffect(() => {
+  //   if (repoUrl) {
+  //     // Refetching branches every 6 seconds
+  //     const interval = setInterval(() => {
+  //       setError(null);
+  //       fetchBranches(repoUrl)
+  //         .then((branches) =>
+  //           branches.sort((a, b) => {
+  //             // Sorting branches so that 'main' or 'master' always comes first
+  //             if (a.name === 'main' || a.name === 'master') return -1;
+  //             if (b.name === 'main' || b.name === 'master') return 1;
+  //             return a.name.localeCompare(b.name);
+  //           })
+  //         )
+  //         .then((branches) => setBranches(branches))
+  //         .catch((error) => {
+  //           const errorMessage = 'Failed to fetch repository branches';
+  //           console.error(errorMessage, error);
+  //           setError(errorMessage);
+  //           setNotification({
+  //             message: errorMessage,
+  //             type: 'error',
+  //           });
+  //         });
+  //     }, 6000);
 
-      return () => clearInterval(interval);
-    }
-  }, [repoUrl, setNotification]);
+  //     return () => clearInterval(interval);
+  //   }
+  // }, [repoUrl, setNotification]);
 
   const selectedBranchItem = branches.find(
     (branch: GithubBranch) => branch.name === selectedBranch
@@ -76,7 +80,6 @@ export function useBranches(repoUrl: string, setNotification: (n: Notification) 
     branches,
     selectedBranch: selectedBranchItem,
     isLoadingRepoBranches: loading,
-    error,
     selectBranch,
     loadRepoBranchesError: error,
     lastCommit: selectedBranchItem?.lastCommit.hash,

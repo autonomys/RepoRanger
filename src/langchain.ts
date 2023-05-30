@@ -2,7 +2,7 @@ import { OpenAI } from "langchain/llms/openai";
 import { PromptTemplate } from "langchain/prompts";
 import { LLMChain } from "langchain/chains";
 
-const openAIApiKey = process.env.OPENAI_API_KEY;
+const openAIApiKey = process.env.REACT_APP_OPEN_AI_API_KEY;
 
 const llm = new OpenAI({
   openAIApiKey,
