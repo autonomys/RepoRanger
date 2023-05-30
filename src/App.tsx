@@ -111,7 +111,7 @@ function App() {
       )}
       <Header />
       <main className="p-4">
-        <div className="container mx-auto">
+        <div className="container max-w-full">
           <div>
             <RepositoryInput setRepo={setRepo} resetRepo={resetRepo} />
             {isLoadingRepoBranches && <Loading />}
@@ -139,7 +139,7 @@ function App() {
               </>
             )}
             {!isLoadingRepoBranches && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 w-full">
                 <div className="md:col-span-1">
                   {isLoadingRepoFiles ? (
                     <Loading />
@@ -155,14 +155,6 @@ function App() {
                 {hasFiles && (
                   <div className="md:col-span-2 min-h-[100vh]">
                     <div className="bg-white dark:bg-gray-800 shadow p-6 rounded min-h-full">
-                      <div className="flex items-stretch gap-2 min-w-full mb-4">
-                        <input
-                          className="resize border rounded-md p-2 w-full"
-                          value={prompt}
-                          onChange={(e) => setPrompt(e.target.value)}
-                        />
-                        <Button onClick={handleSubmit}>Submit</Button>
-                      </div>
                       <Result
                         files={selectedFiles}
                         isLoadingFileContents={isLoadingFileContents}
@@ -176,6 +168,18 @@ function App() {
                     </div>
                   </div>
                 )}
+                <div className="md:col-span-2">
+                  <div className="bg-white dark:bg-gray-800 shadow p-6 rounded min-h-full">
+                    <div className="flex items-stretch gap-2 min-w-full mb-4">
+                      <input
+                        className="resize border rounded-md p-2 w-full"
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                      />
+                      <Button onClick={handleSubmit}>Submit</Button>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
