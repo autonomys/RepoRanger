@@ -1,37 +1,38 @@
 import { useState, useCallback } from 'react';
-import { submitPrompt } from '../langchain';
+import { submitPrompt as apiSubmitPrompt } from '../langchain';
+import { Notification } from '../types';
 
-export function useLangchain() {
+export function useLangchain(setNotification: (n: Notification) => void) {
   const [prompt, setPrompt] = useState('');
-  const [response, setResponse] = useState('');
+  const [modelResponse, setResponse] = useState('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const submit = useCallback(
+  const submitPrompt = useCallback(
     async (files: string) => {
       try {
         setError(null);
         setLoading(true);
-        const response = await submitPrompt(prompt, files);
+        const response = await apiSubmitPrompt(prompt, files);
         setResponse(response?.text);
       } catch (error) {
         const errorMessage = 'Failed to submit prompt';
         console.error(errorMessage, error);
         setError(errorMessage);
-        // setNotification({
-        //   message: errorMessage,
-        //   type: 'error',
-        // });
+        setNotification({
+          message: errorMessage,
+          type: 'error',
+        });
       } finally {
         setLoading(false);
       }
     },
-    [prompt]
+    [prompt, setNotification]
   );
 
   return {
-    submit,
-    response,
+    submitPrompt,
+    modelResponse,
     isLoadingLangchain: loading,
     submitPromptError: error,
     prompt,

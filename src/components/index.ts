@@ -9,4 +9,3 @@ export { Button } from './Button';
 export { Header } from './Header';
 export { Result } from './Result';
 export { Notification } from './Notification';
-export { PromptModal } from './PromptModal';

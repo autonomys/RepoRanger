@@ -1,45 +1,49 @@
 import { FC, createContext, useContext, ReactNode, useState } from 'react';
 
-import { useFiles, useFileFilter, useResult, useBranches } from './hooks';
+import {
+  useFiles,
+  useFileFilter,
+  useResult,
+  useBranches,
+  useLangchain,
+} from './hooks';
 import { Notification as INotification } from './types';
 
 type State = any;
 // {
-//   isLoadingRepoBranches: 
-//   branches: 
-//   selectedBranch: 
-//   loadRepoBranchesError: 
-//   selectBranch: 
-//   lastCommit: 
-//   fetchRepoBranches: 
-//   isLoadingRepoFiles: 
-//   files: 
-//   fileExtensions: 
-//   loadRepoFilesError: 
-//   toggleFileSelect: 
-//   selectedFiles: 
-//   toggleContentCollapse: 
-//   clearSelectedFiles: 
-//   searchQuery: 
-//   setSearchQuery: 
-//   selectedExtensions: 
-//   selectFileExtensions: 
-//   clearFileFilters: 
-//   displayedFiles: 
-//   isLoadingFileContents: 
-//   totalCharCount: 
-//   handleCopy: 
-//   handleDownload: 
-//   selectedFileContents: 
-//   repoName: 
-//   setRepoName: 
-//   notification: 
-//   setNotification: 
+//   isLoadingRepoBranches:
+//   branches:
+//   selectedBranch:
+//   loadRepoBranchesError:
+//   selectBranch:
+//   lastCommit:
+//   fetchRepoBranches:
+//   isLoadingRepoFiles:
+//   files:
+//   fileExtensions:
+//   loadRepoFilesError:
+//   toggleFileSelect:
+//   selectedFiles:
+//   toggleContentCollapse:
+//   clearSelectedFiles:
+//   searchQuery:
+//   setSearchQuery:
+//   selectedExtensions:
+//   selectFileExtensions:
+//   clearFileFilters:
+//   displayedFiles:
+//   isLoadingFileContents:
+//   totalCharCount:
+//   handleCopy:
+//   handleDownload:
+//   selectedFileContents:
+//   repoName:
+//   setRepoName:
+//   notification:
+//   setNotification:
 // };
 
-const AppStateContext = createContext<State>(
-  {}
-);
+const AppStateContext = createContext<State>({});
 
 type Props = {
   children?: ReactNode;
@@ -49,78 +53,30 @@ export const AppStateProvider: FC<Props> = ({ children }) => {
   const [repoName, setRepoName] = useState<string>('');
   const [notification, setNotification] = useState<INotification | null>(null);
 
-  const {
-    isLoadingRepoBranches,
-    branches,
-    selectedBranch,
-    loadRepoBranchesError,
-    selectBranch,
-    lastCommit,
-    fetchRepoBranches,
-  } = useBranches(repoName, setNotification);
-
-  const {
-    isLoadingRepoFiles,
-    files,
-    fileExtensions,
-    loadRepoFilesError,
-    toggleFileSelect,
-    selectedFiles,
-    toggleContentCollapse,
-    clearSelectedFiles,
-  } = useFiles(repoName, selectedBranch?.name, lastCommit, setNotification);
-
-  const {
-    searchQuery,
-    setSearchQuery,
-    selectedExtensions,
-    selectFileExtensions,
-    clearFileFilters,
-    displayedFiles,
-  } = useFileFilter(files);
-
-  const {
-    isLoadingFileContents,
-    totalCharCount,
-    handleCopy,
-    handleDownload,
-    selectedFileContents,
-  } = useResult(
-    selectedFiles,
+  const branchesState = useBranches(repoName, setNotification);
+  const filesState = useFiles(
     repoName,
-    selectedBranch?.name!,
+    branchesState.selectedBranch?.name,
+    branchesState.lastCommit,
     setNotification
   );
+  const fileFilterState = useFileFilter(filesState.files);
+  const resultState = useResult(
+    filesState.selectedFiles,
+    repoName,
+    branchesState.selectedBranch?.name!,
+    setNotification
+  );
+  const langChainState = useLangchain(setNotification);
 
   return (
     <AppStateContext.Provider
       value={{
-        isLoadingRepoBranches,
-        branches,
-        selectedBranch,
-        loadRepoBranchesError,
-        selectBranch,
-        lastCommit,
-        fetchRepoBranches,
-        isLoadingRepoFiles,
-        files,
-        fileExtensions,
-        loadRepoFilesError,
-        toggleFileSelect,
-        selectedFiles,
-        toggleContentCollapse,
-        clearSelectedFiles,
-        searchQuery,
-        setSearchQuery,
-        selectedExtensions,
-        selectFileExtensions,
-        clearFileFilters,
-        displayedFiles,
-        isLoadingFileContents,
-        totalCharCount,
-        handleCopy,
-        handleDownload,
-        selectedFileContents,
+        ...branchesState,
+        ...filesState,
+        ...fileFilterState,
+        ...resultState,
+        ...langChainState,
         repoName,
         setRepoName,
         notification,
