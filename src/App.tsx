@@ -10,11 +10,14 @@ import {
   FileFilter,
   Header,
   Notification,
-  Button,
 } from './components';
-import { useBranches, useFiles, useFileFilter, useResult } from './hooks';
+import {
+  useBranches,
+  useFiles,
+  useFileFilter,
+  useResult,
+} from './hooks';
 import { Notification as INotification } from './types';
-import { useLangchain } from './hooks/useLangchain';
 
 function App() {
   const [repoName, setRepoName] = useState<string>('');
@@ -63,21 +66,6 @@ function App() {
     setNotification
   );
 
-  const {
-    submit,
-    response,
-    isLoadingLangchain,
-    submitPromptError,
-    prompt,
-    setPrompt,
-  } = useLangchain();
-
-  console.log({
-    isLoadingLangchain,
-    submitPromptError,
-    response,
-  });
-
   const hasErrors = loadRepoBranchesError || loadRepoFilesError;
   const hasBranches = repoName && !hasErrors && branches.length > 0;
   const hasSelectedBranch = repoName && !hasErrors && selectedBranch;
@@ -93,11 +81,6 @@ function App() {
     setNotification(null);
     clearFileFilters();
     clearSelectedFiles();
-  };
-
-  const handleSubmit = () => {
-    const fileContent = [...selectedFileContents.values()].join('\n\n');
-    submit(fileContent);
   };
 
   return (
@@ -139,7 +122,7 @@ function App() {
               </>
             )}
             {!isLoadingRepoBranches && (
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 w-full">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
                 <div className="md:col-span-1">
                   {isLoadingRepoFiles ? (
                     <Loading />
@@ -168,18 +151,6 @@ function App() {
                     </div>
                   </div>
                 )}
-                <div className="md:col-span-2">
-                  <div className="bg-white dark:bg-gray-800 shadow p-6 rounded min-h-full">
-                    <div className="flex items-stretch gap-2 min-w-full mb-4">
-                      <input
-                        className="resize border rounded-md p-2 w-full"
-                        value={prompt}
-                        onChange={(e) => setPrompt(e.target.value)}
-                      />
-                      <Button onClick={handleSubmit}>Submit</Button>
-                    </div>
-                  </div>
-                </div>
               </div>
             )}
           </div>

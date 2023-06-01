@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { GitHubFile } from '../../types';
-import { Loading, Button } from '..';
+import { Loading, Button, PromptModal } from '..';
 import { CharacterCount } from './CharacterCount';
 import { Contents } from './Contents';
 
@@ -36,6 +36,7 @@ export const Result: React.FC<ResultProps> = memo(
         />
         {files.length ? (
           <>
+            <PromptModal content="content" />
             <Button onClick={handleCopy}>Copy</Button>
             <Button onClick={handleDownload}>Download</Button>
             <Button variant="danger" onClick={clearFiles}>
