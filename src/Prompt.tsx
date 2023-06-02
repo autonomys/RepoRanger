@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { Button } from './components/Button';
 import { useAppState } from './StateProvider';
 
@@ -6,11 +6,8 @@ export const Prompt = () => {
   const { prompt, setPrompt, submitPrompt, messages, selectedFileContents } =
     useAppState();
 
-  const navigate = useNavigate();
-
   if (!selectedFileContents.size) {
-    navigate('/');
-    return null;
+    return <Navigate to="/" />;
   }
 
   const fileContent = [...selectedFileContents.values()].join('\n\n');
