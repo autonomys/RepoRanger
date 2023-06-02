@@ -68,7 +68,6 @@ export const AppStateProvider: FC<Props> = ({ children }) => {
     setNotification
   );
   const langChainState = useLangchain(setNotification);
-
   return (
     <AppStateContext.Provider
       value={{
