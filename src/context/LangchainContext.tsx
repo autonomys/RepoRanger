@@ -1,24 +1,57 @@
-import { useState, useCallback } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  FC,
+  ReactNode,
+  useCallback,
+} from 'react';
 import { submitPrompt as apiSubmitPrompt } from '../langchain';
-import { Notification } from '../types';
+import { useNotification } from './NotificationContext';
 
 type Message = {
-  user: 'bot' | 'user',
-  content: string,
+  user: 'bot' | 'user';
+  content: string;
 };
 
 type MessageList = Message[];
 
-export function useLangchain(setNotification: (n: Notification) => void) {
+type LangchainState = {
+  submitPrompt: (prompt: string, files: string) => void;
+  isLoadingLangchain: boolean;
+  submitPromptError: string | null;
+  prompt: string;
+  setPrompt: (prompt: string) => void;
+  messages: MessageList;
+};
+
+const initialResultState: LangchainState = {
+  submitPrompt: () => {},
+  isLoadingLangchain: false,
+  submitPromptError: null,
+  prompt: '',
+  setPrompt: () => {},
+  messages: [],
+};
+
+const LangchainContext = createContext<LangchainState>(initialResultState);
+
+type Props = {
+  children: ReactNode;
+};
+
+export const LangchainProvider: FC<Props> = ({ children }) => {
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageList>([
-    { user: 'bot', content: 'Hello! How can I help you today?' }
+    { user: 'bot', content: 'Hello! How can I help you today?' },
   ]);
 
+  const { setNotification } = useNotification();
+
   const handleNewMessage = useCallback((message: Message) => {
-    setMessages(messages => [...messages, message]);
+    setMessages((messages) => [...messages, message]);
   }, []);
 
   const submitPrompt = useCallback(
@@ -44,7 +77,7 @@ export function useLangchain(setNotification: (n: Notification) => void) {
     [handleNewMessage, setNotification]
   );
 
-  return {
+  const value = {
     submitPrompt,
     isLoadingLangchain: loading,
     submitPromptError: error,
@@ -52,4 +85,12 @@ export function useLangchain(setNotification: (n: Notification) => void) {
     setPrompt,
     messages,
   };
-}
+
+  return (
+    <LangchainContext.Provider value={value}>
+      {children}
+    </LangchainContext.Provider>
+  );
+};
+
+export const useLangchain = () => useContext(LangchainContext);

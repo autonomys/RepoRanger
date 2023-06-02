@@ -1,12 +1,56 @@
-import { useState, useEffect, useMemo } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useEffect,
+  FC,
+  ReactNode,
+} from 'react';
 import { fetchFileContent } from '../api';
-import { GitHubFile, Notification } from '../types';
+import { useFiles } from './FilesContext';
+import { useRepo } from './RepoContext';
+import { useBranches } from './BranchContext';
+import { useNotification } from './NotificationContext';
 
-export function useResult(files: GitHubFile[], repo: string, branchName: string, setNotification: (n: Notification) => void) {
+type ResultState = {
+  isLoadingFileContents: boolean;
+  setContentsLoading: (isLoading: boolean) => void;
+  totalCharCount: number;
+  loadFileContentsError: null | string;
+  handleDownload: () => void;
+  handleCopy: () => void;
+  selectedFileContents: Map<string, string>;
+  fileContent: string;
+};
+
+const initialResultState: ResultState = {
+  isLoadingFileContents: false,
+  setContentsLoading: () => {},
+  totalCharCount: 0,
+  loadFileContentsError: null,
+  handleDownload: () => {},
+  handleCopy: () => {},
+  selectedFileContents: new Map(),
+  fileContent: '',
+};
+
+const ResultContext = createContext<ResultState>(initialResultState);
+
+type Props = {
+  children: ReactNode;
+};
+
+export const ResultProvider: FC<Props> = ({ children }) => {
+  const { files } = useFiles();
+  const { repoName } = useRepo();
+  const { selectedBranchName } = useBranches();
   const [isLoadingFileContents, setContentsLoading] = useState(false);
-  const [loadFileContentsError, setLoadFileContentsError] = useState<null | string>(
-    null
-  );
+  const [loadFileContentsError, setLoadFileContentsError] = useState<
+    null | string
+  >(null);
+
+  const { setNotification } = useNotification();
 
   const [selectedFileContents, setSelectedFileContents] = useState<
     Map<string, string>
@@ -32,12 +76,17 @@ export function useResult(files: GitHubFile[], repo: string, branchName: string,
       [...files].map(({ path }) => [path, ''])
     );
 
-    if (repo && branchName) {
+    if (repoName && selectedBranchName) {
       setContentsLoading(true);
 
       const promises = files.map(({ path }) => {
         setLoadFileContentsError(null);
-        return fetchFileContent(repo, branchName!, path, abortController.signal)
+        return fetchFileContent(
+          repoName,
+          selectedBranchName!,
+          path,
+          abortController.signal
+        )
           .then(({ content }) => {
             newSelectedFileContents.set(path, content || '');
           })
@@ -61,7 +110,13 @@ export function useResult(files: GitHubFile[], repo: string, branchName: string,
     return () => {
       abortController.abort();
     };
-  }, [repo, branchName, setContentsLoading, files, setNotification]);
+  }, [
+    repoName,
+    setContentsLoading,
+    files,
+    selectedBranchName,
+    setNotification,
+  ]);
 
   const fileContent = [...selectedFileContents.values()].join('\n\n');
 
@@ -72,7 +127,7 @@ export function useResult(files: GitHubFile[], repo: string, branchName: string,
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${repo}-${branchName}-selected-files.txt`;
+    link.download = `${repoName}-${selectedBranchName}-selected-files.txt`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -86,7 +141,7 @@ export function useResult(files: GitHubFile[], repo: string, branchName: string,
     });
   };
 
-  return {
+  const value = {
     isLoadingFileContents,
     setContentsLoading,
     totalCharCount,
@@ -96,4 +151,10 @@ export function useResult(files: GitHubFile[], repo: string, branchName: string,
     selectedFileContents,
     fileContent,
   };
-}
+
+  return (
+    <ResultContext.Provider value={value}>{children}</ResultContext.Provider>
+  );
+};
+
+export const useResult = () => useContext(ResultContext);

@@ -4,13 +4,13 @@ import { GithubBranch } from '../types';
 interface BranchesProps {
   branches: GithubBranch[];
   selectedBranch: GithubBranch | undefined;
-  selectBranch: (branch: string) => void;
+  setSelectedBranchName: (branchName: string) => void;
 }
 
 export const Branches: React.FC<BranchesProps> = memo(
-  ({ branches, selectedBranch, selectBranch }) => {
+  ({ branches, selectedBranch, setSelectedBranchName }) => {
     function handleBranchChange({ target }: ChangeEvent<HTMLInputElement>) {
-      selectBranch(target.value);
+      setSelectedBranchName(target.value);
     }
     return (
       <div className="mb-4">

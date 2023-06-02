@@ -1,5 +1,5 @@
 import { FC, createContext, useContext, ReactNode, useState, useEffect } from 'react'
-import { useSafeLocalStorage } from './hooks/useSafeLocalStorage'
+import { useSafeLocalStorage } from '../hooks/useSafeLocalStorage'
 
 function usePrefersDarkMode() {
   const [value, setValue] = useState(true)

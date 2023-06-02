@@ -1,10 +1,11 @@
 import { Link, Navigate } from 'react-router-dom';
 import { Button } from './components/Button';
-import { useAppState } from './StateProvider';
+import { useResult } from './context/ResultContext';
+import { useLangchain } from './context/LangchainContext';
 
 export const Prompt = () => {
-  const { prompt, setPrompt, submitPrompt, messages, fileContent } =
-    useAppState();
+  const { prompt, setPrompt, submitPrompt, messages } = useLangchain();
+  const { fileContent } = useResult();
 
   if (!fileContent.length) {
     return <Navigate to="/" />;

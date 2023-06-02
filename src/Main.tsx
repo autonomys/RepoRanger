@@ -8,17 +8,26 @@ import {
   LastCommit,
   FileFilter,
 } from './components';
-import { useAppState } from './StateProvider';
+import { useNotification } from './context/NotificationContext';
+import { useBranches } from './context/BranchContext';
+import { useRepo } from './context/RepoContext';
+import { useFiles } from './context/FilesContext';
+import { useResult } from './context/ResultContext';
 
 export const Main = () => {
+  const { setNotification } = useNotification();
+
   const {
-    isLoadingRepoBranches,
     branches,
-    selectedBranch,
+    setSelectedBranchName,
+    isLoadingRepoBranches,
     loadRepoBranchesError,
-    selectBranch,
-    // lastCommit,
     fetchRepoBranches,
+    selectedBranch,
+  } = useBranches();
+
+  const { repoName, setRepoName } = useRepo();
+  const {
     isLoadingRepoFiles,
     files,
     fileExtensions,
@@ -33,16 +42,15 @@ export const Main = () => {
     selectFileExtensions,
     clearFileFilters,
     displayedFiles,
+  } = useFiles();
+
+  const {
     isLoadingFileContents,
     totalCharCount,
     handleCopy,
     handleDownload,
     selectedFileContents,
-    repoName,
-    setRepoName,
-    // notification,
-    setNotification,
-  } = useAppState();
+  } = useResult();
 
   const hasErrors = loadRepoBranchesError || loadRepoFilesError;
   const hasBranches = repoName && !hasErrors && branches.length > 0;
@@ -56,7 +64,7 @@ export const Main = () => {
 
   const resetRepo = () => {
     setRepoName('');
-    setNotification(null);
+    setNotification();
     clearFileFilters();
     clearSelectedFiles();
   };
@@ -68,8 +76,8 @@ export const Main = () => {
       {hasBranches && (
         <Branches
           branches={branches}
+          setSelectedBranchName={setSelectedBranchName}
           selectedBranch={selectedBranch}
-          selectBranch={selectBranch}
         />
       )}
       {hasSelectedBranch && (
