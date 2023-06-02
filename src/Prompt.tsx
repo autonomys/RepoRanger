@@ -3,14 +3,13 @@ import { Button } from './components/Button';
 import { useAppState } from './StateProvider';
 
 export const Prompt = () => {
-  const { prompt, setPrompt, submitPrompt, messages, selectedFileContents } =
+  const { prompt, setPrompt, submitPrompt, messages, fileContent } =
     useAppState();
 
-  if (!selectedFileContents.size) {
+  if (!fileContent.length) {
     return <Navigate to="/" />;
   }
 
-  const fileContent = [...selectedFileContents.values()].join('\n\n');
   const handleSubmit = () => {
     submitPrompt(prompt, fileContent);
     setPrompt('');

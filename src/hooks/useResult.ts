@@ -63,8 +63,9 @@ export function useResult(files: GitHubFile[], repo: string, branchName: string,
     };
   }, [repo, branchName, setContentsLoading, files, setNotification]);
 
+  const fileContent = [...selectedFileContents.values()].join('\n\n');
+
   const handleDownload = () => {
-    const fileContent = [...selectedFileContents.values()].join('\n\n');
     const blob = new Blob([fileContent], {
       type: 'text/plain;charset=utf-8',
     });
@@ -77,7 +78,6 @@ export function useResult(files: GitHubFile[], repo: string, branchName: string,
   };
 
   const handleCopy = () => {
-    const fileContent = [...selectedFileContents.values()].join('\n\n');
     navigator.clipboard.writeText(fileContent).then(() => {
       setNotification({
         message: 'Contents copied to clipboard.',
@@ -94,5 +94,6 @@ export function useResult(files: GitHubFile[], repo: string, branchName: string,
     handleDownload,
     handleCopy,
     selectedFileContents,
+    fileContent,
   };
 }
