@@ -10,7 +10,7 @@ import { submitPrompt as apiSubmitPrompt } from '../langchain';
 import { useNotification } from './NotificationContext';
 
 type Message = {
-  user: 'bot' | 'user';
+  user: 'model' | 'user';
   content: string;
 };
 
@@ -45,7 +45,7 @@ export const LangchainProvider: FC<Props> = ({ children }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageList>([
-    { user: 'bot', content: 'Hello! How can I help you today?' },
+    { user: 'model', content: 'Hello! How can I help you today?' },
   ]);
 
   const { setNotification } = useNotification();
@@ -61,7 +61,7 @@ export const LangchainProvider: FC<Props> = ({ children }) => {
         setLoading(true);
         handleNewMessage({ user: 'user', content: prompt });
         const response = await apiSubmitPrompt(prompt, files);
-        handleNewMessage({ user: 'bot', content: response?.text });
+        handleNewMessage({ user: 'model', content: response?.text });
       } catch (error) {
         const errorMessage = 'Failed to submit prompt';
         console.error(errorMessage, error);
