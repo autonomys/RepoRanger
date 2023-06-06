@@ -2,16 +2,12 @@ import { OpenAI } from "langchain/llms/openai";
 import { PromptTemplate } from "langchain/prompts";
 import { LLMChain } from "langchain/chains";
 
-const openAIApiKey = process.env.REACT_APP_OPEN_AI_API_KEY;
-
-const llm = new OpenAI({
-  openAIApiKey,
-  temperature: 0.9,
-  modelName: "gpt-3.5-turbo",
-  // modelName: "gpt-4",
-});
-
-export const submitPrompt = async (userPrompt: string, files: string) => {
+export const submitPrompt = async (userPrompt: string, files: string, modelName: string, openAIApiKey: string) => {
+  const llm = new OpenAI({
+    openAIApiKey,
+    temperature: 0.9,
+    modelName,
+  });
   try {
     const template = `
       You are an experienced softwarer engineer.

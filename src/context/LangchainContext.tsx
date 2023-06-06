@@ -23,6 +23,10 @@ type LangchainState = {
   prompt: string;
   setPrompt: (prompt: string) => void;
   messages: MessageList;
+  model: string;
+  setModel: (model: string) => void;
+  apiKey: string;
+  setApiKey: (apiKey: string) => void;
 };
 
 const initialResultState: LangchainState = {
@@ -32,6 +36,10 @@ const initialResultState: LangchainState = {
   prompt: '',
   setPrompt: () => {},
   messages: [],
+  model: 'gpt-3.5-turbo',
+  setModel: () => {},
+  apiKey: '',
+  setApiKey: () => {},
 };
 
 const LangchainContext = createContext<LangchainState>(initialResultState);
@@ -48,6 +56,9 @@ export const LangchainProvider: FC<Props> = ({ children }) => {
     { user: 'model', content: 'Hello! How can I help you today?' },
   ]);
 
+  const [apiKey, setApiKey] = useState<string>('');
+  const [model, setModel] = useState('gpt-3.5-turbo');
+
   const { setNotification } = useNotification();
 
   const handleNewMessage = useCallback((message: Message) => {
@@ -60,7 +71,7 @@ export const LangchainProvider: FC<Props> = ({ children }) => {
         setError(null);
         setLoading(true);
         handleNewMessage({ user: 'user', content: prompt });
-        const response = await apiSubmitPrompt(prompt, files);
+        const response = await apiSubmitPrompt(prompt, files, model, apiKey);
         handleNewMessage({ user: 'model', content: response?.text });
       } catch (error) {
         const errorMessage = 'Failed to submit prompt';
@@ -74,7 +85,7 @@ export const LangchainProvider: FC<Props> = ({ children }) => {
         setLoading(false);
       }
     },
-    [handleNewMessage, setNotification]
+    [apiKey, handleNewMessage, model, setNotification]
   );
 
   const value = {
@@ -84,6 +95,10 @@ export const LangchainProvider: FC<Props> = ({ children }) => {
     prompt,
     setPrompt,
     messages,
+    model,
+    setModel,
+    apiKey,
+    setApiKey,
   };
 
   return (
