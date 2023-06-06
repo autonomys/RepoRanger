@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Button } from './Button';
+import { useRepo } from '../context/RepoContext';
 
 interface RepositoryInputProps {
   setRepo: (repo: string) => void;
@@ -10,29 +11,29 @@ export const RepositoryInput: React.FC<RepositoryInputProps> = ({
   setRepo,
   resetRepo,
 }) => {
-  const [inputValue, setInputValue] = useState('');
+  const { repoUrl, setRepoUrl } = useRepo();
   const [error, setError] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
+    setRepoUrl(e.target.value);
     setError('');
   };
 
   const handleSubmit = useCallback(() => {
-    const repoMatch = inputValue.match(/github.com\/(.+\/.+)(\/|$)/i);
+    const repoMatch = repoUrl.match(/github.com\/(.+\/.+)(\/|$)/i);
     if (repoMatch && repoMatch[1]) {
       setRepo(repoMatch[1]);
       setError('');
     } else {
       setError('Invalid GitHub repository URL');
     }
-  }, [inputValue, setRepo]);
+  }, [repoUrl, setRepo]);
 
   const handleResetClick = useCallback(() => {
-    setInputValue('');
+    setRepoUrl('');
     setError('');
     resetRepo();
-  }, [resetRepo]);
+  }, [resetRepo, setRepoUrl]);
 
   return (
     <div className="mb-4 text-gray-700 dark:text-gray-300">
@@ -43,7 +44,7 @@ export const RepositoryInput: React.FC<RepositoryInputProps> = ({
         <input
           type="text"
           id="repo-url"
-          value={inputValue}
+          value={repoUrl}
           onChange={handleInputChange}
           className={`border ${
             error ? 'border-red-600' : 'border-gray-300 dark:border-gray-700'
@@ -54,7 +55,7 @@ export const RepositoryInput: React.FC<RepositoryInputProps> = ({
         <Button onClick={handleSubmit} className="rounded-r">
           Load
         </Button>
-        {inputValue && (
+        {repoUrl && (
           <Button onClick={handleResetClick} variant="danger" className="ml-2">
             Reset
           </Button>

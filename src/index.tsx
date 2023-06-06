@@ -3,7 +3,13 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { ThemeProvider } from './ThemeProvider';
+import { ThemeProvider } from './context/ThemeProvider';
+import { NotificationProvider } from './context/NotificationContext';
+import { BranchesProvider } from './context/BranchContext';
+import { RepoProvider } from './context/RepoContext';
+import { FilesProvider } from './context/FilesContext';
+import { ResultProvider } from './context/ResultContext';
+import { LangchainProvider } from './context/LangchainContext';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -11,7 +17,19 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <ThemeProvider>
-      <App />
+      <NotificationProvider>
+        <RepoProvider>
+          <BranchesProvider>
+            <FilesProvider>
+              <ResultProvider>
+                <LangchainProvider>
+                  <App />
+                </LangchainProvider>
+              </ResultProvider>
+            </FilesProvider>
+          </BranchesProvider>
+        </RepoProvider>
+      </NotificationProvider>
     </ThemeProvider>
   </React.StrictMode>
 );

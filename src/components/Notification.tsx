@@ -1,37 +1,25 @@
 import { useEffect, useState } from 'react';
 import { CloseIcon, ExclamationIcon, CheckIcon } from './icons';
+import { useNotification } from '../context/NotificationContext';
 
-interface NotificationProps {
-  message: string;
-  type: string;
-  onClose: () => void;
-}
-
-export const Notification: React.FC<NotificationProps> = ({
-  message,
-  type,
-  onClose,
-}) => {
+export const Notification = () => {
+  const { notification, setNotification } = useNotification();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (message) {
+    if (notification?.message) {
       setTimeout(() => {
         setVisible(true);
       }, 100);
     }
-  }, [message]);
+  }, [notification]);
 
   const handleClose = () => {
     setVisible(false);
-    setTimeout(() => {
-      if (onClose) {
-        onClose();
-      }
-    }, 300);
+    setTimeout(() => setNotification(), 300);
   };
 
-  const isError = type === 'error';
+  const isError = notification?.type === 'error';
 
   const visibleClass = visible
     ? 'opacity-100 translateY-0'
@@ -53,8 +41,8 @@ export const Notification: React.FC<NotificationProps> = ({
         )}
       </div>
       <div>
-        <h3 className="font-semibold">{type.toLocaleUpperCase()}</h3>
-        <p className="text-sm">{message}</p>
+        <h3 className="font-semibold">{notification?.type.toLocaleUpperCase()}</h3>
+        <p className="text-sm">{notification?.message}</p>
       </div>
       <button
         className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded focus:outline-none"

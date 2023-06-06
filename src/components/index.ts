@@ -1,7 +1,7 @@
 export { Branches } from './Branches';
 export { Loading } from './Loading';
 export { NoRepositorySelected } from './NoRepositorySelected';
-export { FileList } from './FileList/FileList'; 
+export { FileList } from './FileList/FileList';
 export { RepositoryInput } from './RepositoryInput';
 export { LastCommit } from './LastCommit';
 export { FileFilter } from './FileFilter';

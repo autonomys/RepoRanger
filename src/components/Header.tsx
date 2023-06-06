@@ -1,5 +1,5 @@
 import { GithubIcon, MoonIcon, SunIcon } from './icons';
-import { useTheme } from '../ThemeProvider';
+import { useTheme } from '../context/ThemeProvider';
 
 export const Header = () => {
   const { isDark, toggleTheme } = useTheme();
