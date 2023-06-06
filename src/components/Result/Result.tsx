@@ -40,8 +40,8 @@ export const Result: React.FC<ResultProps> = memo(
             <Link to="/prompt">
               <Button>Chat</Button>
             </Link>
-            <Button onClick={handleCopy}>Copy</Button>
-            <Button onClick={handleDownload}>Download</Button>
+            <Button variant="secondary" onClick={handleCopy}>Copy</Button>
+            <Button variant="secondary" onClick={handleDownload}>Download</Button>
             <Button variant="danger" onClick={clearFiles}>
               Clear
             </Button>

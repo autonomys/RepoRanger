@@ -3,12 +3,12 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
 }
 
-type ButtonVariant = 'primary' | 'danger';
+type ButtonVariant = 'primary' | 'danger' | 'secondary';
 
 const buttonStyles: Record<ButtonVariant, string> = {
-  primary:
-    'bg-blue-500 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-500 text-white font-bold py-2 px-4 rounded',
-  danger: 'bg-red-500 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-500 text-white font-bold py-2 px-4 rounded',
+  primary: 'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded',
+  danger: 'bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded',
+  secondary: 'bg-transparent border-blue-500 hover:border-blue-700 text-blue-500 hover:text-blue-700 font-bold py-2 px-4 rounded border',
 };
 
 export const Button: React.FC<ButtonProps> = ({
