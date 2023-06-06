@@ -27,7 +27,7 @@ export const Notification = () => {
 
   return (
     <div
-      className={`text-gray-700 dark:text-gray-300 fixed top-4 right-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-md transition-all duration-300 ease-in-out ${visibleClass} flex items-center space-x-4 z-50`}
+      className={`text-gray-700 dark:text-gray-300 fixed top-16 right-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-md transition-all duration-300 ease-in-out ${visibleClass} flex items-center space-x-4 z-50`}
     >
       <div className="flex-shrink">
         {isError ? (
