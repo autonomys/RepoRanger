@@ -9,6 +9,7 @@ import { BranchesProvider } from './context/BranchContext';
 import { RepoProvider } from './context/RepoContext';
 import { FilesProvider } from './context/FilesContext';
 import { ResultProvider } from './context/ResultContext';
+import { LangchainProvider } from './context/LangchainContext';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -21,7 +22,9 @@ root.render(
           <BranchesProvider>
             <FilesProvider>
               <ResultProvider>
-                <App />
+                <LangchainProvider>
+                  <App />
+                </LangchainProvider>
               </ResultProvider>
             </FilesProvider>
           </BranchesProvider>

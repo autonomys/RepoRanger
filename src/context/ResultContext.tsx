@@ -42,7 +42,7 @@ type Props = {
 };
 
 export const ResultProvider: FC<Props> = ({ children }) => {
-  const { files } = useFiles();
+  const { selectedFiles } = useFiles();
   const { repoName } = useRepo();
   const { selectedBranchName } = useBranches();
   const [isLoadingFileContents, setContentsLoading] = useState(false);
@@ -64,22 +64,23 @@ export const ResultProvider: FC<Props> = ({ children }) => {
     return totalChars;
   }, [selectedFileContents]);
 
+  
   useEffect(() => {
     const abortController = new AbortController();
-
-    if (files.length === 0) {
+    
+    if (selectedFiles.length === 0) {
       setSelectedFileContents(new Map());
       return;
     }
-
+    
     const newSelectedFileContents = new Map(
-      [...files].map(({ path }) => [path, ''])
-    );
+      [...selectedFiles].map(({ path }) => [path, ''])
+      );
 
     if (repoName && selectedBranchName) {
       setContentsLoading(true);
 
-      const promises = files.map(({ path }) => {
+      const promises = selectedFiles.map(({ path }) => {
         setLoadFileContentsError(null);
         return fetchFileContent(
           repoName,
@@ -110,13 +111,7 @@ export const ResultProvider: FC<Props> = ({ children }) => {
     return () => {
       abortController.abort();
     };
-  }, [
-    repoName,
-    setContentsLoading,
-    files,
-    selectedBranchName,
-    setNotification,
-  ]);
+  }, [repoName, setContentsLoading, selectedBranchName, setNotification, selectedFiles, totalCharCount]);
 
   const fileContent = [...selectedFileContents.values()].join('\n\n');
 
