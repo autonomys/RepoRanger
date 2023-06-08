@@ -24,7 +24,7 @@ These instructions will get you a copy of the project up and running on your loc
 1. Clone the repository:
 
 ```
-git clone https://github.com/isSerge/RepoRanger.git
+git clone https://github.com/subspace/RepoRanger.git
 ```
 
 2. Install the dependencies:
